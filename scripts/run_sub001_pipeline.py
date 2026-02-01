@@ -2,6 +2,9 @@ from pathlib import Path
 import sys
 import mne
 
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.append(str(ROOT))
+
 import config
 from project.io import load_raw
 from project.preprocessing import preprocess_raw
@@ -11,8 +14,8 @@ from project.erp import compute_evokeds, save_evokeds
 from project import viz
 
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.append(str(ROOT))
+""" ROOT = Path(__file__).resolve().parents[1]
+sys.path.append(str(ROOT)) """
 
 def run_for_subject(subject: str) -> None:
     print("=" * 80)

@@ -9,6 +9,7 @@ DERIV_ROOT.mkdir(parents=True, exist_ok=True)
 
 # We'll start with a single subject for Milestone 3
 SUBJECTS = ["001"]
+""" SUBJECTS = [f"{i:03d}" for i in range(1, 25)] """
 
 # ==== FILTERING / PREPROCESSING ===========================================
 
