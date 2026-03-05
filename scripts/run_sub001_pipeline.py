@@ -11,7 +11,7 @@ from project.preprocessing import preprocess_raw
 from project.ica import fit_ica, apply_ica
 from project.epochs import make_epochs
 from project.erp import compute_evokeds, save_evokeds
-from project import viz
+from project import viz, emg
 
 
 """ ROOT = Path(__file__).resolve().parents[1]
@@ -51,15 +51,20 @@ def run_for_subject(subject: str) -> None:
     evokeds = compute_evokeds(epochs)
     save_evokeds(evokeds, subject)
 
-    # 7) Figures for Milestone 3
+    # 7) Compute EMG Z-scores (Affective Analysis)
+    emg_df = emg.compute_emg_zscore(epochs)
+    emg.save_emg_results(emg_df, subject)
+    emg.compute_and_save_emg_summary(emg_df, subject)
+
+    # 8) Figures for Milestone 3
     viz.plot_psd_before_after(raw, raw_filt, subject)
     viz.plot_raw_vs_clean(raw, raw_clean, subject)
     viz.plot_ica_components(ica, subject)
     viz.plot_erp(evokeds, subject)
+    viz.plot_erp_comparison(evokeds, subject)
     viz.plot_butterfly(evokeds, subject)
 
     print(f"Finished pipeline for sub-{subject}\n")
-
 
 def main():
     mne.set_log_level("INFO")
