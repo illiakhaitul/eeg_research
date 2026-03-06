@@ -47,8 +47,8 @@ EMG_HPF = 20.0
 
 # Event codes from sub-001_task-jacobsen_events.tsv
 EVENT_ID = {
-    "random": 1,
-    "symmetry": 3,
+    "random": 3,
+    "symmetry": 1,
 }
 
 IGNORE_EVENT_VALUES = [255]  # start/sync trigger

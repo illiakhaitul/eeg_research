@@ -11,7 +11,7 @@ from project.preprocessing import preprocess_raw
 from project.ica import fit_ica, apply_ica
 from project.epochs import make_epochs
 from project.erp import compute_evokeds, save_evokeds
-from project import viz, emg
+from project import viz, emg, stest
 
 
 """ ROOT = Path(__file__).resolve().parents[1]
@@ -30,16 +30,10 @@ def run_for_subject(subject: str) -> None:
     raw_filt = preprocess_raw(raw)
 
     # 3) Fit ICA and inspect components
-    ica = fit_ica(raw_filt, subject)
+    raw_for_ica = raw_filt.copy().filter(l_freq=1.0, h_freq=40.0)
 
-    # --- IMPORTANT STEP FOR YOU (outside of script) -----------------------
-    # At this point you should:
-    #   1) run this script once,
-    #   2) open the saved ICA components figure,
-    #   3) decide which components are artefacts (e.g. [0, 1]),
-    #   4) put their indices into config.ICA_EXCLUDE.
-    # For Milestone 3 you can keep ICA_EXCLUDE=[] or manually fill it.
-    # ----------------------------------------------------------------------
+    # 3) Fit ICA and inspect components
+    ica = fit_ica(raw_for_ica, subject)
 
     # 4) Apply ICA
     raw_clean = apply_ica(raw_filt, ica, exclude=config.ICA_EXCLUDE)
@@ -50,6 +44,16 @@ def run_for_subject(subject: str) -> None:
     # 6) Compute ERPs
     evokeds = compute_evokeds(epochs)
     save_evokeds(evokeds, subject)
+    
+    stest.run_cluster_permutation_test(
+        epochs,
+        subject,
+        condition_a="random",
+        condition_b="symmetry",
+        picks=config.ERP_CHANNELS,   # or None for all EEG channels
+        n_permutations=1000,
+        alpha=0.05,
+    )
 
     # 7) Compute EMG Z-scores (Affective Analysis)
     emg_df = emg.compute_emg_zscore(epochs)

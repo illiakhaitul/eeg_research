@@ -35,9 +35,9 @@ def preprocess_raw(raw: mne.io.BaseRaw) -> mne.io.BaseRaw:
             verbose=True,
         )
         
-    if hasattr(config, 'RESAMPLE_FREQ') and config.RESAMPLE_FREQ is not None:
+    """ if hasattr(config, 'RESAMPLE_FREQ') and config.RESAMPLE_FREQ is not None:
         print(f"Resampling data to {config.RESAMPLE_FREQ} Hz...")
-        raw_proc.resample(config.RESAMPLE_FREQ)
+        raw_proc.resample(config.RESAMPLE_FREQ) """
 
     # 3) Set EEG average reference
     raw_proc.set_eeg_reference("average", verbose=True)

@@ -50,10 +50,17 @@ def make_epochs(
     epochs : mne.Epochs
     """
     events = load_events(subject)
+    
+    sfreq_orig = 512
+    sfreq_new = raw.info["sfreq"]
+
+    events[:,0] = np.round(events[:,0] / sfreq_orig * sfreq_new).astype(int)
 
     # Sanity check: at least some events
     if len(events) == 0:
         raise RuntimeError(f"No events found for subject {subject}.")
+    
+    reject = dict(eeg=150e-6)
 
     epochs = mne.Epochs(
         raw,
@@ -63,6 +70,7 @@ def make_epochs(
         tmax=config.TMAX,
         baseline=config.BASELINE,
         preload=True,
+        reject=reject,
     )
 
     # Save epochs to derivatives
