@@ -1,7 +1,8 @@
 
 from pathlib import Path
 
-BIDS_ROOT = Path(r"E:\masters Stuttgart\Uni Work\sem 3\EEG\EEG_project\data\ds004347") 
+# BIDS_ROOT = Path(r"E:\masters Stuttgart\Uni Work\sem 3\EEG\EEG_project\data\ds004347") 
+BIDS_ROOT = Path(r"E:\masters Stuttgart\Uni Work\sem 3\EEG\dataset\ds004347")
 
 # Where to store our derivatives (preprocessed data, figures, etc.)
 DERIV_ROOT = BIDS_ROOT / "derivatives" / "eegtigers"
@@ -12,6 +13,11 @@ SUBJECTS = ["001"]
 # SUBJECTS = [f"{i:03d}" for i in range(1, 25)]
 
 # ==== FILTERING / PREPROCESSING ===========================================
+
+#Identify bad channels manually
+BAD_CHANNELS_MAP = {
+    "001": ["P2"], 
+}
 
 # Your change vs authors: Band-pass instead of simple low-pass at 25 Hz
 L_FREQ = 0.1   # high-pass
@@ -30,7 +36,7 @@ ICA_N_COMPONENTS = 30  # can be None (all) or number < n_channels
 # List of ICA components to remove (will be updated after visual inspection)
 # ICA_EXCLUDE = [0,1,3]
 ICA_EXCLUDE_MAP = {
-    "001": [0,1,6],  # Starting empty for sub-001 should be filled after inspection
+    "001": [],  # Starting empty for sub-001 should be filled after inspection
 }
 
 # Time window around each stimulus (in seconds)
