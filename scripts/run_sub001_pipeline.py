@@ -12,6 +12,7 @@ from project.ica import fit_ica, apply_ica
 from project.epochs import make_epochs
 from project.erp import compute_evokeds, save_evokeds
 from project import viz, emg, stest
+import matplotlib.pyplot as plt
 
 
 """ ROOT = Path(__file__).resolve().parents[1]
@@ -30,13 +31,21 @@ def run_for_subject(subject: str) -> None:
     raw_filt = preprocess_raw(raw)
 
     # 3) Fit ICA and inspect components
-    raw_for_ica = raw_filt.copy().filter(l_freq=1.0, h_freq=40.0)
-
-    # 3) Fit ICA and inspect components
+    # raw_for_ica = raw_filt.copy().filter(l_freq=1.0, h_freq=40.0)
+    
+    # 3) Fit ICA
+    # We use a 1Hz high-pass for ICA as it helps the algorithm find better components
+    raw_for_ica = raw_filt.copy().filter(l_freq=1.0, h_freq=None)
     ica = fit_ica(raw_for_ica, subject)
 
-    # 4) Apply ICA
-    raw_clean = apply_ica(raw_filt, ica, exclude=config.ICA_EXCLUDE)
+    # --- SAVE VISUALS FOR MANUAL INSPECTION ---
+    # These functions save .png files to our figures folder
+    viz.plot_ica_components(ica, subject)
+    viz.plot_ica_sources(ica, raw_filt, subject)
+
+    # 4) Apply ICA using the Mapping in config.py
+    # This function will now check config.ICA_EXCLUDE_MAP for the subject ID
+    raw_clean = apply_ica(raw_filt, ica, subject=subject)
 
     # 5) Create epochs
     epochs = make_epochs(raw_clean, subject)
@@ -45,15 +54,15 @@ def run_for_subject(subject: str) -> None:
     evokeds = compute_evokeds(epochs)
     save_evokeds(evokeds, subject)
     
-    stest.run_cluster_permutation_test(
-        epochs,
-        subject,
-        condition_a="random",
-        condition_b="symmetry",
-        picks=config.ERP_CHANNELS,   # or None for all EEG channels
-        n_permutations=1000,
-        alpha=0.05,
-    )
+    # stest.run_cluster_permutation_test(
+    #     epochs,
+    #     subject,
+    #     condition_a="random",
+    #     condition_b="symmetry",
+    #     picks=config.ERP_CHANNELS,   # or None for all EEG channels
+    #     n_permutations=1000,
+    #     alpha=0.05,
+    # )
 
     # 7) Compute EMG Z-scores (Affective Analysis)
     emg_df = emg.compute_emg_zscore(epochs)

@@ -109,6 +109,24 @@ def plot_ica_components(ica, subject: str):
     fig.savefig(fig_path, dpi=150)
     print(f"Saved ICA components figure to {fig_path}")
 
+def plot_ica_sources(ica, raw, subject: str):
+    """
+    Saves the time-series of ICA components so we can see blinks and heartbeats.
+    """
+    ranges = [(0, 15), (15, ica.n_components_)]
+    
+    for i, (start, stop) in enumerate(ranges):
+        # We pick the specific range for each plot
+        picks = list(range(start, stop))
+        fig = ica.plot_sources(raw, picks=picks, show=False)
+        
+        # Adjusting suffix to distinguish the two files
+        suffix = "0-14" if i == 0 else "15-up"
+        out = config.FIG_ROOT / f"sub-{subject}_ica_sources_{suffix}.png"
+        
+        fig.savefig(out, dpi=150)
+        plt.close(fig)
+        print(f"Saved ICA sources ({suffix}) to {out}")
 
 def plot_erp(
     evokeds: Dict[str, mne.Evoked],
