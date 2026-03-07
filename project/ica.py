@@ -51,23 +51,37 @@ def load_ica(subject: str) -> mne.preprocessing.ICA:
     return mne.preprocessing.read_ica(ica_fname)
 
 
-def apply_ica(
-    raw: mne.io.BaseRaw,
-    ica: mne.preprocessing.ICA,
-    exclude: Optional[Iterable[int]] = None,
-) -> mne.io.BaseRaw:
-    """
-    Apply ICA to remove artefactual components.
+# def apply_ica(
+#     raw: mne.io.BaseRaw,
+#     ica: mne.preprocessing.ICA,
+#     exclude: Optional[Iterable[int]] = None,
+# ) -> mne.io.BaseRaw:
+#     """
+#     Apply ICA to remove artefactual components.
 
-    For Milestone 3 we use a manual list from config.ICA_EXCLUDE.
-    Later you can replace this by automatic IC classification (ICLabel, etc.).
-    """
+#     For Milestone 3 we use a manual list from config.ICA_EXCLUDE.
+#     Later you can replace this by automatic IC classification (ICLabel, etc.).
+#     """
+#     raw_clean = raw.copy()
+#     if exclude is None:
+#         exclude = config.ICA_EXCLUDE
+
+#     ica.exclude = list(exclude)
+#     print(f"Applying ICA, excluding components: {ica.exclude}")
+#     ica.apply(raw_clean)
+
+#     return raw_clean
+
+def apply_ica(raw, ica, subject):
+    exclude = config.ICA_EXCLUDE_MAP.get(subject, [])
+    
+    if not exclude:
+        print(f"\n[!] WARNING: ICA_EXCLUDE_MAP for {subject} is EMPTY.")
+        print(f"Inspect images in {config.FIG_ROOT} and update config.py.")
+        # We return the original raw; it's 'dirty', but the script won't crash
+        return raw.copy() 
+
+    ica.exclude = exclude
     raw_clean = raw.copy()
-    if exclude is None:
-        exclude = config.ICA_EXCLUDE
-
-    ica.exclude = list(exclude)
-    print(f"Applying ICA, excluding components: {ica.exclude}")
     ica.apply(raw_clean)
-
     return raw_clean

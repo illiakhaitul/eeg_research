@@ -60,7 +60,7 @@ def make_epochs(
     if len(events) == 0:
         raise RuntimeError(f"No events found for subject {subject}.")
     
-    reject = dict(eeg=150e-6)
+    reject = dict(eeg=100e-6)
 
     epochs = mne.Epochs(
         raw,
@@ -72,6 +72,11 @@ def make_epochs(
         preload=True,
         reject=reject,
     )
+
+    # epochs.plot_drop_log()
+    # print("=" * 80)
+    # print(f"drop logs for sub-{epochs.drop_log}")
+    # print("=" * 80)
 
     # Save epochs to derivatives
     epo_fname = config.DERIV_ROOT / f"sub-{subject}_epo.fif"
