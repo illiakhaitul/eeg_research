@@ -8,6 +8,10 @@ BIDS_ROOT = Path(r"E:\masters Stuttgart\Uni Work\sem 3\EEG\dataset\ds004347")
 DERIV_ROOT = BIDS_ROOT / "derivatives" / "eegtigers"
 DERIV_ROOT.mkdir(parents=True, exist_ok=True)
 
+# General figure output folder
+FIG_ROOT = DERIV_ROOT / "figures"
+FIG_ROOT.mkdir(parents=True, exist_ok=True)
+
 # We'll start with a single subject for Milestone 3
 SUBJECTS = ["001"]
 # SUBJECTS = [f"{i:03d}" for i in range(1, 25)]
@@ -66,6 +70,12 @@ IGNORE_EVENT_VALUES = [255]  # start/sync trigger
 # Channels of interest for ERP plot (occipital / parietal)
 ERP_CHANNELS = ["PO7", "PO8", "Oz", "O1", "O2", "POz"]
 
-# General figure output folder
-FIG_ROOT = DERIV_ROOT / "figures"
-FIG_ROOT.mkdir(parents=True, exist_ok=True)
+def get_subject_deriv_dir(subject: str) -> Path:
+    out = DERIV_ROOT / f"sub-{subject}"
+    out.mkdir(parents=True, exist_ok=True)
+    return out
+
+def get_subject_fig_dir(subject: str) -> Path:
+    out = FIG_ROOT / f"sub-{subject}"
+    out.mkdir(parents=True, exist_ok=True)
+    return out
