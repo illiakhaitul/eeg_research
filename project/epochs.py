@@ -83,4 +83,7 @@ def make_epochs(
     epochs.save(epo_fname, overwrite=True)
     print(f"Saved epochs for sub-{subject} to {epo_fname}")
 
+#should be removed just cehcking it
+    print([ch for ch in epochs.ch_names if ch in ["PO7","PO8"]])
+
     return epochs

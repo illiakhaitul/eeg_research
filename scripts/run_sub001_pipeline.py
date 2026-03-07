@@ -51,7 +51,7 @@ def run_for_subject(subject: str) -> None:
     epochs = make_epochs(raw_clean, subject)
 
     # 6) Compute ERPs
-    evokeds = compute_evokeds(epochs)
+    evokeds = compute_evokeds(epochs,subject)
     save_evokeds(evokeds, subject)
     
     # stest.run_cluster_permutation_test(
