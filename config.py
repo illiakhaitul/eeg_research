@@ -20,15 +20,15 @@ SUBJECTS = ["001"]
 
 #Identify bad channels manually
 BAD_CHANNELS_MAP = {
-    "001": ["P2", "FC6", "F8", "AF7", "Fp1", "AF4"],  # may only provide first 3 if we want to stick to our change
+    "001": ["P2", "FC6", "F8", "AF7", "Fp1", "AF4"],
 }
 
 # Your change vs authors: Band-pass instead of simple low-pass at 25 Hz
 L_FREQ = 0.5   # high-pass
-H_FREQ = 25.0  # low-pass
+H_FREQ = 30.0  # low-pass
 
 # Powerline noise
-NOTCH_FREQS = (50.0,)  # Hz
+# NOTCH_FREQS = (50.0,)  # Hz
 
 # Resampling rate (Hz)
 RESAMPLE_FREQ = 256
@@ -36,12 +36,12 @@ RESAMPLE_FREQ = 256
 # ICA parameters
 ICA_METHOD = "fastica" # may change this to a better one
 ICA_N_COMPONENTS = 30  # can be None (all) or number < n_channels
+ICA_RANDOM_STATE = 97
 
 # List of ICA components to remove (will be updated after visual inspection)
 # ICA_EXCLUDE = [0,1,3]
 ICA_EXCLUDE_MAP = {
-    # "001": [0, 1, 3, 12, 15],  # [0, 1, 2, 3, 15] will use all this identified if removing 3 doesn't give better answer Starting empty for sub-001 should be filled after inspection
-    "001": [0, 1, 2, 3, 15]
+    "001": [0, 3, 4, 5, 6],
 }
 
 # Time window around each stimulus (in seconds)
@@ -49,7 +49,7 @@ TMIN = -1
 TMAX = 1
 
 # Classic baseline correction window
-BASELINE = (-0.2, 0.05)
+BASELINE = (-0.2, 0.0)
 
 EMG_ZM_CH = "EXG5"  
 

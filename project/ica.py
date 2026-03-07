@@ -31,7 +31,7 @@ def fit_ica(raw: mne.io.BaseRaw, subject: str) -> mne.preprocessing.ICA:
     ica = mne.preprocessing.ICA(
         n_components=config.ICA_N_COMPONENTS,
         method=config.ICA_METHOD,
-        random_state=97,
+        random_state=config.ICA_RANDOM_STATE,
         max_iter="auto",
     )
     ica.fit(raw)

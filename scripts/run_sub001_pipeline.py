@@ -35,8 +35,8 @@ def run_for_subject(subject: str) -> None:
     
     # 3) Fit ICA
     # We use a 1Hz high-pass for ICA as it helps the algorithm find better components
-    raw_for_ica = raw_filt.copy().filter(l_freq=1.0, h_freq=None)
-    ica = fit_ica(raw_for_ica, subject)
+    # raw_for_ica = raw_filt.copy().filter(l_freq=1.0, h_freq=None)
+    ica = fit_ica(raw_filt, subject)
 
     # --- SAVE VISUALS FOR MANUAL INSPECTION ---
     # These functions save .png files to our figures folder
