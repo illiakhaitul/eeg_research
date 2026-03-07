@@ -28,7 +28,7 @@ def run_for_subject(subject: str) -> None:
     print(raw)
 
     # 2) Preprocess: band-pass, notch, reref
-    raw_filt = preprocess_raw(raw)
+    raw_filt = preprocess_raw(raw, subject=subject)
 
     # 3) Fit ICA and inspect components
     # raw_for_ica = raw_filt.copy().filter(l_freq=1.0, h_freq=40.0)
