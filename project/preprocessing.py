@@ -25,8 +25,15 @@ def preprocess_raw(raw: mne.io.BaseRaw, subject: str = None) -> mne.io.BaseRaw:
         raw_proc.interpolate_bads(reset_bads=True)
 
     # 5. FILTER (Author Replication)
-    # Using the 0.1-40Hz range defined in your config
     raw_proc.filter(l_freq=config.L_FREQ, h_freq=config.H_FREQ)
+
+    # 6. RESAMPLE
+    if hasattr(config, "RESAMPLE_FREQ") and config.RESAMPLE_FREQ is not None:
+        current_sfreq = raw_proc.info["sfreq"]
+        if current_sfreq != config.RESAMPLE_FREQ:
+            print(f"Resampling data from {current_sfreq} Hz to {config.RESAMPLE_FREQ} Hz...")
+            raw_proc.resample(config.RESAMPLE_FREQ)
+
     raw_proc.set_eeg_reference("average")
 
     return raw_proc
