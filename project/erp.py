@@ -50,8 +50,8 @@ def compute_evokeds(epochs: mne.Epochs, subject: str) -> Dict[str, mne.Evoked]:
             titles="SPN difference wave (symmetry - random)",
             show=False
         )
-
-        spn_fig_path = config.FIG_ROOT / f"sub-{subject}_spn_diff.png"
+        out_dir = config.get_subject_fig_dir(subject)
+        spn_fig_path = out_dir / f"sub-{subject}_spn_diff.png"
         fig.savefig(spn_fig_path, dpi=300, bbox_inches="tight")
         print(f"Saved SPN difference figure to {spn_fig_path}")
 
@@ -62,7 +62,8 @@ def save_evokeds(evokeds: Dict[str, mne.Evoked], subject: str) -> None:
     """
     Save Evoked objects to derivatives folder.
     """
+    out_dir = config.get_subject_deriv_dir(subject)
     for name, ev in evokeds.items():
-        ev_fname = config.DERIV_ROOT / f"sub-{subject}_evoked-{name}.fif"
+        ev_fname = out_dir / f"sub-{subject}_evoked-{name}.fif" f"sub-{subject}_evoked-{name}.fif"
         ev.save(ev_fname, overwrite=True)
         print(f"Saved evoked '{name}' for sub-{subject} to {ev_fname}")

@@ -6,13 +6,16 @@ from mne.viz import plot_compare_evokeds
 
 import config
 
+# def make_subject_figdir(subject: str):
+#     out_dir = os.path.join(
+#         "D:/VUZ/uni/code_rest/EEG_Lecture/ds004347/derivatives/eegtigers/figures",
+#         f"sub-{subject}"
+#     )
+#     os.makedirs(out_dir, exist_ok=True)
+#     return out_dir
+
 def make_subject_figdir(subject: str):
-    out_dir = os.path.join(
-        "D:/VUZ/uni/code_rest/EEG_Lecture/ds004347/derivatives/eegtigers/figures",
-        f"sub-{subject}"
-    )
-    os.makedirs(out_dir, exist_ok=True)
-    return out_dir
+    return config.get_subject_fig_dir(subject)
 
 def plot_psd_before_after(
     raw_before: mne.io.BaseRaw,
@@ -29,7 +32,8 @@ def plot_psd_before_after(
     axes[1].set_title("PSD - filtered")
 
     fig.suptitle(f"sub-{subject}: PSD before vs after filtering")
-    out = config.FIG_ROOT / f"sub-{subject}_psd_before_after.png"
+    out_dir = make_subject_figdir(subject)
+    out = out_dir / f"sub-{subject}_psd_before_after.png"
     fig.tight_layout()
     fig.savefig(out, dpi=150)
     plt.close(fig)
@@ -57,7 +61,8 @@ def plot_raw_vs_clean(
         show=False,
         title=f"sub-{subject}: raw (top) vs clean (bottom)",
     )
-    out = config.FIG_ROOT / f"sub-{subject}_raw_segment.png"
+    out_dir = make_subject_figdir(subject)
+    out = out_dir / f"sub-{subject}_raw_segment.png"
     fig.savefig(out, dpi=150)
     plt.close(fig)
 
@@ -69,7 +74,8 @@ def plot_raw_vs_clean(
         show=False,
         title=f"sub-{subject}: cleaned segment",
     )
-    out2 = config.FIG_ROOT / f"sub-{subject}_clean_segment.png"
+    out_dir = make_subject_figdir(subject)
+    out2 = out_dir / f"sub-{subject}_clean_segment.png"
     fig2.savefig(out2, dpi=150)
     plt.close(fig2)
 
@@ -105,7 +111,8 @@ def plot_ica_components(ica, subject: str):
         return
 
     # Save figure
-    fig_path = config.FIG_ROOT / f"sub-{subject}_ica_components.png"
+    out_dir = make_subject_figdir(subject)
+    fig_path = out_dir / f"sub-{subject}_ica_components.png"
     fig.savefig(fig_path, dpi=150)
     print(f"Saved ICA components figure to {fig_path}")
 
@@ -122,7 +129,8 @@ def plot_ica_sources(ica, raw, subject: str):
         
         # Adjusting suffix to distinguish the two files
         suffix = "0-14" if i == 0 else "15-up"
-        out = config.FIG_ROOT / f"sub-{subject}_ica_sources_{suffix}.png"
+        out_dir = make_subject_figdir(subject)
+        out = out_dir / f"sub-{subject}_ica_sources_{suffix}.png"
         
         fig.savefig(out, dpi=150)
         plt.close(fig)
@@ -153,7 +161,8 @@ def plot_erp(
         )
 
     ax.set_title(f"sub-{subject}: ERP at {', '.join(picks)}")
-    out = config.FIG_ROOT / f"sub-{subject}_erp.png"
+    out_dir = make_subject_figdir(subject)
+    out = out_dir / f"sub-{subject}_erp.png"
     fig.tight_layout()
     fig.savefig(out, dpi=150)
     plt.close(fig)
@@ -189,7 +198,8 @@ def plot_erp_comparison(evokeds: Dict[str, mne.Evoked], subject: str) -> None:
     )
     
     # 4. Save the figure
-    out = config.FIG_ROOT / f"sub-{subject}_SPN_comparison.png"
+    out_dir = make_subject_figdir(subject)
+    out = out_dir / f"sub-{subject}_SPN_comparison.png"
     
     # Check if 'figs' is a list (standard behavior) or single figure
     if isinstance(figs, list):
@@ -219,7 +229,8 @@ def plot_butterfly(
             show=False,
             titles=dict(eeg=f"{name} - butterfly"),
         )
-        out = config.FIG_ROOT / f"sub-{subject}_butterfly_{name}.png"
+        out_dir = make_subject_figdir(subject)
+        out = out_dir / f"sub-{subject}_butterfly_{name}.png"
         fig.savefig(out, dpi=150)
         plt.close(fig)
         print(f"Saved butterfly figure for '{name}' to {out}")
