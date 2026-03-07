@@ -37,7 +37,7 @@ ICA_N_COMPONENTS = 30  # can be None (all) or number < n_channels
 # ICA_EXCLUDE = [0,1,3]
 ICA_EXCLUDE_MAP = {
     # "001": [0, 1, 3, 12, 15],  # [0, 1, 2, 3, 15] will use all this identified if removing 3 doesn't give better answer Starting empty for sub-001 should be filled after inspection
-    "001": [0, 1, 2, 3, 4, 5, 8, 14, 15, 21]
+    "001": [0, 1, 2, 3, 15]
 }
 
 # Time window around each stimulus (in seconds)

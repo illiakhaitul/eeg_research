@@ -73,10 +73,10 @@ def make_epochs(
         reject=reject,
     )
 
-    epochs.plot_drop_log()
-    print("=" * 80)
-    print(f"drop logs for sub-{epochs.drop_log}")
-    print("=" * 80)
+    # epochs.plot_drop_log()
+    # print("=" * 80)
+    # print(f"drop logs for sub-{epochs.drop_log}")
+    # print("=" * 80)
 
     # Save epochs to derivatives
     epo_fname = config.DERIV_ROOT / f"sub-{subject}_epo.fif"
