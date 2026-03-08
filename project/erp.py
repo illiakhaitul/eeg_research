@@ -17,7 +17,25 @@ import config
 #         evokeds[cond_name] = epochs[cond_name].average()
 #     return evokeds
 
-def compute_evokeds(epochs: mne.Epochs, subject: str) -> Dict[str, mne.Evoked]:
+def compute_spn_metrics(evokeds: Dict[str, mne.Evoked], roi_channels):
+    """
+    Compute subject-level SPN metrics in microvolts for a given ROI.
+    Returns symmetry mean, random mean, and SPN difference mean.
+    """
+    evoked_sym = evokeds["symmetry"]
+    evoked_ran = evokeds["random"]
+
+    # Overall mean across ROI and time (QC-style summary)
+    symmetry_mean_uv = evoked_sym.copy().pick(roi_channels).data.mean() * 1e6
+    random_mean_uv = evoked_ran.copy().pick(roi_channels).data.mean() * 1e6
+
+    # SPN difference in the main time window
+    spn_diff = mne.combine_evoked([evoked_sym, evoked_ran], weights=[1, -1])
+    spn_mean_uv = spn_diff.copy().pick(roi_channels).crop(0.3, 1.0).data.mean() * 1e6
+
+    return symmetry_mean_uv, random_mean_uv, spn_mean_uv
+
+def compute_evokeds(epochs: mne.Epochs, subject: str):
     evokeds = {}
 
     for cond_name in config.EVENT_ID.keys():
@@ -26,19 +44,24 @@ def compute_evokeds(epochs: mne.Epochs, subject: str) -> Dict[str, mne.Evoked]:
             continue
         evokeds[cond_name] = epochs[cond_name].average()
 
+    metrics = None
     # --- Compute SPN ---
     if "symmetry" in evokeds and "random" in evokeds:
+        symmetry_mean_uv, random_mean_uv, spn_mean_uv = compute_spn_metrics(
+            evokeds,
+            config.SPN_ROI_MAIN,
+        )
 
-        picks = ["PO7", "PO8"]
+        print(f"--- Main ROI: {config.SPN_ROI_MAIN} ---")
+        print(f"Symmetry Mean: {symmetry_mean_uv:.4f} µV")
+        print(f"Random Mean:   {random_mean_uv:.4f} µV")
+        print(f"Net SPN:       {spn_mean_uv:.4f} µV")
 
-        sym = evokeds["symmetry"].copy().pick(picks)
-        rnd = evokeds["random"].copy().pick(picks)
-
-        spn = sym.copy()
-        spn.data = sym.data - rnd.data
-
-        spn_value = spn.copy().crop(0.3,1.0).data.mean(axis=1).mean()
-        print(f"SPN (symmetry - random) 300–1000ms PO7/PO8: {spn_value:.4f} µV")
+        metrics = {
+            "symmetry_mean_uv": symmetry_mean_uv,
+            "random_mean_uv": random_mean_uv,
+            "spn_mean_uv": spn_mean_uv,
+        }
 
         # --- Difference wave plot for SPN verification ---
         diff = mne.combine_evoked(
@@ -46,7 +69,7 @@ def compute_evokeds(epochs: mne.Epochs, subject: str) -> Dict[str, mne.Evoked]:
             weights=[1, -1]
         )
         fig = diff.plot(
-            picks=["PO7", "PO8"],
+            picks=config.SPN_ROI_MAIN,
             titles="SPN difference wave (symmetry - random)",
             show=False
         )
@@ -55,7 +78,7 @@ def compute_evokeds(epochs: mne.Epochs, subject: str) -> Dict[str, mne.Evoked]:
         fig.savefig(spn_fig_path, dpi=300, bbox_inches="tight")
         print(f"Saved SPN difference figure to {spn_fig_path}")
 
-    return evokeds
+    return evokeds, metrics
 
 
 def save_evokeds(evokeds: Dict[str, mne.Evoked], subject: str) -> None:
@@ -64,6 +87,6 @@ def save_evokeds(evokeds: Dict[str, mne.Evoked], subject: str) -> None:
     """
     out_dir = config.get_subject_deriv_dir(subject)
     for name, ev in evokeds.items():
-        ev_fname = out_dir / f"sub-{subject}_evoked-{name}.fif" f"sub-{subject}_evoked-{name}.fif"
+        ev_fname = out_dir / f"sub-{subject}_evoked-{name}.fif"        
         ev.save(ev_fname, overwrite=True)
         print(f"Saved evoked '{name}' for sub-{subject} to {ev_fname}")

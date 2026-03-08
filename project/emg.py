@@ -85,8 +85,9 @@ def compute_emg_zscore(epochs: mne.Epochs) -> pd.DataFrame:
 
 def save_emg_results(df: pd.DataFrame, subject: str):
     """Save the final EMG DataFrame to derivatives."""
+    out_dir = config.get_subject_deriv_dir(subject)
     if not df.empty:
-        fname = config.DERIV_ROOT / f"sub-{subject}_emg_zscores.csv"
+        fname = out_dir / f"sub-{subject}_emg_zscores.csv"
         df.to_csv(fname, index=False)
         print(f"Saved EMG Z-scores to {fname}")
 
@@ -124,6 +125,7 @@ def compute_and_save_emg_summary(df: pd.DataFrame, subject: str) -> None:
         print("Could not calculate differences (missing conditions).")
 
     # Save to CSV
-    out_file = config.DERIV_ROOT / f"sub-{subject}_emg_summary.csv"
+    out_dir = config.get_subject_deriv_dir(subject)
+    out_file = out_dir / f"sub-{subject}_emg_summary.csv"
     summary_df.to_csv(out_file, index=False)
     print(f"Saved EMG summary stats to {out_file}")

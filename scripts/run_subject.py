@@ -1,7 +1,6 @@
-# we can delete this file now since i have created other two files for better structure.
-
 from pathlib import Path
 import sys
+import argparse
 import mne
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,8 +12,8 @@ from project.preprocessing import preprocess_raw
 from project.ica import fit_ica, apply_ica
 from project.epochs import make_epochs
 from project.erp import compute_evokeds, save_evokeds
+from project.summary import save_subject_summary
 from project import viz, emg, stest
-import matplotlib.pyplot as plt
 
 
 """ ROOT = Path(__file__).resolve().parents[1]
@@ -29,7 +28,7 @@ def run_for_subject(subject: str) -> None:
     raw = load_raw(subject)
     print(raw)
 
-    # 2) Preprocess: band-pass, notch, reref
+    # 2) Preprocess: band-pass, resample, reref
     raw_filt = preprocess_raw(raw, subject=subject)
 
     # 3) Fit ICA and inspect components
@@ -42,8 +41,8 @@ def run_for_subject(subject: str) -> None:
 
     # --- SAVE VISUALS FOR MANUAL INSPECTION ---
     # These functions save .png files to our figures folder
-    viz.plot_ica_components(ica, subject)
-    viz.plot_ica_sources(ica, raw_filt, subject)
+    # viz.plot_ica_components(ica, subject)
+    # viz.plot_ica_sources(ica, raw_filt, subject)
 
     # 4) Apply ICA using the Mapping in config.py
     # This function will now check config.ICA_EXCLUDE_MAP for the subject ID
@@ -53,8 +52,16 @@ def run_for_subject(subject: str) -> None:
     epochs = make_epochs(raw_clean, subject)
 
     # 6) Compute ERPs
-    evokeds = compute_evokeds(epochs,subject)
+    evokeds, metrics = compute_evokeds(epochs, subject)
     save_evokeds(evokeds, subject)
+
+    if metrics is not None:
+        save_subject_summary(
+            subject=subject,
+            symmetry_mean=metrics["symmetry_mean_uv"],
+            random_mean=metrics["random_mean_uv"],
+            spn_mean=metrics["spn_mean_uv"],
+        )
     
     # stest.run_cluster_permutation_test(
     #     epochs,
@@ -75,6 +82,7 @@ def run_for_subject(subject: str) -> None:
     viz.plot_psd_before_after(raw, raw_filt, subject)
     viz.plot_raw_vs_clean(raw, raw_clean, subject)
     viz.plot_ica_components(ica, subject)
+    viz.plot_ica_sources(ica, raw_filt, subject)
     viz.plot_erp(evokeds, subject)
     viz.plot_erp_comparison(evokeds, subject)
     viz.plot_butterfly(evokeds, subject)
@@ -82,9 +90,12 @@ def run_for_subject(subject: str) -> None:
     print(f"Finished pipeline for sub-{subject}\n")
 
 def main():
+    parser = argparse.ArgumentParser(description="Run EEG pipeline for one subject")
+    parser.add_argument("--subject", required=True, help='Subject ID, e.g. "001"')
+    args = parser.parse_args()
+
     mne.set_log_level("INFO")
-    for subject in config.SUBJECTS:
-        run_for_subject(subject)
+    run_for_subject(args.subject)
 
 
 if __name__ == "__main__":
