@@ -41,8 +41,8 @@ def run_for_subject(subject: str) -> None:
 
     # --- SAVE VISUALS FOR MANUAL INSPECTION ---
     # These functions save .png files to our figures folder
-    viz.plot_ica_components(ica, subject)
-    viz.plot_ica_sources(ica, raw_filt, subject)
+    # viz.plot_ica_components(ica, subject)
+    # viz.plot_ica_sources(ica, raw_filt, subject)
 
     # 4) Apply ICA using the Mapping in config.py
     # This function will now check config.ICA_EXCLUDE_MAP for the subject ID
@@ -81,7 +81,8 @@ def run_for_subject(subject: str) -> None:
     # 8) Figures for Milestone 3
     viz.plot_psd_before_after(raw, raw_filt, subject)
     viz.plot_raw_vs_clean(raw, raw_clean, subject)
-    # viz.plot_ica_components(ica, subject)
+    viz.plot_ica_components(ica, subject)
+    viz.plot_ica_sources(ica, raw_filt, subject)
     viz.plot_erp(evokeds, subject)
     viz.plot_erp_comparison(evokeds, subject)
     viz.plot_butterfly(evokeds, subject)

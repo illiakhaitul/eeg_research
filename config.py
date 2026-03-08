@@ -13,7 +13,7 @@ FIG_ROOT = DERIV_ROOT / "figures"
 FIG_ROOT.mkdir(parents=True, exist_ok=True)
 
 # We'll start with a single subject for Milestone 3
-SUBJECTS = ["001", "002"]
+SUBJECTS = ["001", "002", "003", "004"]
 # SUBJECTS = [f"{i:03d}" for i in range(1, 25)]
 
 # ==== FILTERING / PREPROCESSING ===========================================
@@ -23,7 +23,7 @@ BAD_CHANNELS_MAP = {
     "001": ["P2", "FC6", "F8", "AF7", "Fp1", "AF4"],
     "002": ["P1"],
     "003": ["F3"],
-    "004": [],
+    "004": ["Fp1", "AF7", "P9", "T8", "TP8", "P6", "PO4", "Fp2", "FT8", "AF8"],
     "005": [],
     "006": [],
     "007": [],
@@ -57,8 +57,8 @@ ICA_RANDOM_STATE = 97
 ICA_EXCLUDE_MAP = {
     "001": [0, 3, 4, 5, 6],
     "002": [1, 5, 6, 10, 21],
-    "003": [0,1],
-    "004": [],
+    "003": [0, 1],
+    "004": [0, 2],
     "005": [],
     "006": [],
     "007": [],
