@@ -66,7 +66,7 @@ ICA_EXCLUDE_MAP = {
     "009": [1],
     "010": [0],
     "011": [0, 1],
-    "012": [],
+    "012": [0,1],
 }
 
 # Time window around each stimulus (in seconds)
