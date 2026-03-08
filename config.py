@@ -13,7 +13,7 @@ FIG_ROOT = DERIV_ROOT / "figures"
 FIG_ROOT.mkdir(parents=True, exist_ok=True)
 
 # We'll start with a single subject for Milestone 3
-SUBJECTS = ["001"]
+SUBJECTS = ["002"]
 # SUBJECTS = [f"{i:03d}" for i in range(1, 25)]
 
 # ==== FILTERING / PREPROCESSING ===========================================
@@ -21,9 +21,20 @@ SUBJECTS = ["001"]
 #Identify bad channels manually
 BAD_CHANNELS_MAP = {
     "001": ["P2", "FC6", "F8", "AF7", "Fp1", "AF4"],
+    "002": ["P1"], #["P1", "P3", "CP1"]
+    "003": [],
+    "004": [],
+    "005": [],
+    "006": [],
+    "007": [],
+    "008": [],
+    "009": [],
+    "010": [],
+    "011": [],
+    "012": [],
 }
 
-# Your change vs authors: Band-pass instead of simple low-pass at 25 Hz
+# Your change vs authors: Band-pass instead of simple low-pass at 30 Hz
 L_FREQ = 0.5   # high-pass
 H_FREQ = 30.0  # low-pass
 
@@ -42,6 +53,17 @@ ICA_RANDOM_STATE = 97
 # ICA_EXCLUDE = [0,1,3]
 ICA_EXCLUDE_MAP = {
     "001": [0, 3, 4, 5, 6],
+    "002": [1, 5, 6, 10, 21],
+    "003": [],
+    "004": [],
+    "005": [],
+    "006": [],
+    "007": [],
+    "008": [],
+    "009": [],
+    "010": [],
+    "011": [],
+    "012": [],
 }
 
 # Time window around each stimulus (in seconds)

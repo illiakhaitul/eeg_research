@@ -24,7 +24,7 @@ def preprocess_raw(raw: mne.io.BaseRaw, subject: str = None) -> mne.io.BaseRaw:
         # Now interpolation only works on the valid EEG sensors (PO7, PO8, etc.)
         raw_proc.interpolate_bads(reset_bads=True)
 
-    # 5. FILTER (Author Replication)
+    # 5. FILTER 
     raw_proc.filter(l_freq=config.L_FREQ, h_freq=config.H_FREQ)
 
     # 6. RESAMPLE
