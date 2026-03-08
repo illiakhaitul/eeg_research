@@ -10,7 +10,8 @@ def get_ica_fname(subject: str) -> Path:
     """
     File path where ICA solution for a subject will be stored.
     """
-    return config.DERIV_ROOT / f"sub-{subject}_ica.fif"
+    out_dir = config.get_subject_deriv_dir(subject)
+    return out_dir/ f"sub-{subject}_ica.fif"
 
 
 def fit_ica(raw: mne.io.BaseRaw, subject: str) -> mne.preprocessing.ICA:

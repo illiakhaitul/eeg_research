@@ -13,7 +13,7 @@ FIG_ROOT = DERIV_ROOT / "figures"
 FIG_ROOT.mkdir(parents=True, exist_ok=True)
 
 # We'll start with a single subject for Milestone 3
-SUBJECTS = ["002"]
+SUBJECTS = ["001", "002"]
 # SUBJECTS = [f"{i:03d}" for i in range(1, 25)]
 
 # ==== FILTERING / PREPROCESSING ===========================================
@@ -21,7 +21,7 @@ SUBJECTS = ["002"]
 #Identify bad channels manually
 BAD_CHANNELS_MAP = {
     "001": ["P2", "FC6", "F8", "AF7", "Fp1", "AF4"],
-    "002": ["P1"], #["P1", "P3", "CP1"]
+    "002": ["P1"],
     "003": [],
     "004": [],
     "005": [],
@@ -43,6 +43,9 @@ H_FREQ = 30.0  # low-pass
 
 # Resampling rate (Hz)
 RESAMPLE_FREQ = 256
+
+# Original sampling rate for ds004347 Experiment 1 BioSemi data
+ORIG_SFREQ = 512
 
 # ICA parameters
 ICA_METHOD = "fastica" # may change this to a better one
@@ -91,6 +94,12 @@ IGNORE_EVENT_VALUES = [255]  # start/sync trigger
 
 # Channels of interest for ERP plot (occipital / parietal)
 ERP_CHANNELS = ["PO7", "PO8", "Oz", "O1", "O2", "POz"]
+
+# Main ROI for final reported SPN (matches paper)
+SPN_ROI_MAIN = ["PO7", "PO8"]
+
+# Broader posterior ROI for QC / supportive checks
+SPN_ROI_QC = ["PO7", "PO8", "Oz", "O1", "O2", "POz"]
 
 def get_subject_deriv_dir(subject: str) -> Path:
     out = DERIV_ROOT / f"sub-{subject}"

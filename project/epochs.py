@@ -51,7 +51,7 @@ def make_epochs(
     """
     events = load_events(subject)
     
-    sfreq_orig = 512
+    sfreq_orig = config.ORIG_SFREQ
     sfreq_new = raw.info["sfreq"]
 
     events[:,0] = np.round(events[:,0] / sfreq_orig * sfreq_new).astype(int)
@@ -79,11 +79,9 @@ def make_epochs(
     # print("=" * 80)
 
     # Save epochs to derivatives
-    epo_fname = config.DERIV_ROOT / f"sub-{subject}_epo.fif"
+    out_dir = config.get_subject_deriv_dir(subject)
+    epo_fname = out_dir/ f"sub-{subject}_epo.fif"
     epochs.save(epo_fname, overwrite=True)
     print(f"Saved epochs for sub-{subject} to {epo_fname}")
-
-#should be removed just cehcking it
-    print([ch for ch in epochs.ch_names if ch in ["PO7","PO8"]])
 
     return epochs
