@@ -13,7 +13,7 @@ FIG_ROOT = DERIV_ROOT / "figures"
 FIG_ROOT.mkdir(parents=True, exist_ok=True)
 
 # We'll start with a single subject for Milestone 3
-SUBJECTS = ["001", "002", "003", "004", "005", "006", "007", "008", "009"]
+SUBJECTS = ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010"]
 # SUBJECTS = [f"{i:03d}" for i in range(1, 25)]
 
 # ==== FILTERING / PREPROCESSING ===========================================
@@ -64,7 +64,7 @@ ICA_EXCLUDE_MAP = {
     "007": [0, 2],
     "008": [2],
     "009": [1],
-    "010": [],
+    "010": [0],
     "011": [],
     "012": [],
 }
