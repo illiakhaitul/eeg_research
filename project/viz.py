@@ -6,14 +6,6 @@ from mne.viz import plot_compare_evokeds
 
 import config
 
-# def make_subject_figdir(subject: str):
-#     out_dir = os.path.join(
-#         "D:/VUZ/uni/code_rest/EEG_Lecture/ds004347/derivatives/eegtigers/figures",
-#         f"sub-{subject}"
-#     )
-#     os.makedirs(out_dir, exist_ok=True)
-#     return out_dir
-
 def make_subject_figdir(subject: str):
     return config.get_subject_fig_dir(subject)
 
@@ -22,9 +14,7 @@ def plot_psd_before_after(
     raw_after: mne.io.BaseRaw,
     subject: str,
 ) -> None:
-    """
-    Compare the power spectral density (PSD) before and after preprocessing.
-    """
+    
     fig, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True)
     raw_before.plot_psd(ax=axes[0], show=False)
     axes[0].set_title("PSD - raw")
@@ -47,9 +37,6 @@ def plot_raw_vs_clean(
     duration: float = 5.0,
     start: float = 0.0,
 ) -> None:
-    """
-    Plot a short segment of raw vs ICA-cleaned data for visual comparison.
-    """
     
     my_scalings = dict(eeg=50e-6) 
     
@@ -83,26 +70,22 @@ def plot_raw_vs_clean(
 
 
 def plot_ica_components(ica, subject: str):
-    """
-    Plot ICA components, excluding EXG channels entirely to avoid overlapping
-    montage positions. This solves the BioSemi EXG visualization bug.
-    """
-
-    # 1) Create a copy of ICA.info (so Raw info remains unchanged)
+    
+    # Create a copy of ICA (so Raw info remains unchanged)
     info = ica.info.copy()
 
-    # 2) Identify EXG channels
+    # Identify EXG channels
     exg_channels = [ch for ch in info['ch_names'] if ch.startswith("EXG")]
 
-    # 3) Drop EXG channels from info before plotting ICA topographies
+    # Drop EXG channels from info before plotting ICA topographies
     if len(exg_channels) > 0:
         info = mne.pick_info(info, sel=[i for i, ch in enumerate(info['ch_names']) if ch not in exg_channels])
 
     try:
-        # Force ICA to use modified info (only EEG channels)
+        # Force ICA to only EEG channels
         ica.info = info
 
-        # We plot all ICA components
+        # Plot all ICA components
         picks = range(ica.n_components_)
 
         fig = ica.plot_components(picks=picks, show=False)
@@ -117,13 +100,10 @@ def plot_ica_components(ica, subject: str):
     print(f"Saved ICA components figure to {fig_path}")
 
 def plot_ica_sources(ica, raw, subject: str):
-    """
-    Saves the time-series of ICA components so we can see blinks and heartbeats.
-    """
+    
     ranges = [(0, 15), (15, ica.n_components_)]
     
     for i, (start, stop) in enumerate(ranges):
-        # We pick the specific range for each plot
         picks = list(range(start, stop))
         fig = ica.plot_sources(raw, picks=picks, show=False)
         
@@ -140,9 +120,7 @@ def plot_erp(
     evokeds: Dict[str, mne.Evoked],
     subject: str,
 ) -> None:
-    """
-    Plot ERP for channels of interest for each condition.
-    """
+    
     picks = [ch for ch in config.ERP_CHANNELS if ch in evokeds[next(iter(evokeds))].ch_names]
 
     if not picks:
@@ -169,10 +147,8 @@ def plot_erp(
     print(f"Saved ERP figure to {out}")
     
 def plot_erp_comparison(evokeds: Dict[str, mne.Evoked], subject: str) -> None:
-    """
-    Plots the comparison (Symmetry vs Random) specifically for the SPN channels (PO7, PO8).
-    """
-    # 1. Define the specific channels for the SPN effect
+    
+    # Specific channels for the SPN effect
     roi_channels = ['PO7', 'PO8']
     
     # Check if these channels exist in the data
@@ -182,11 +158,10 @@ def plot_erp_comparison(evokeds: Dict[str, mne.Evoked], subject: str) -> None:
         print(f"SPN channels {roi_channels} not found. Skipping comparison plot.")
         return
 
-    # 2. Define colors for the conditions
+    # Colors for the conditions
     colors = {'random': 'red', 'symmetry': 'blue'}
     
-    # 3. Create the comparison plot
-    # Changed 'upper_right' to 'upper right' (removed underscore)
+    # Comparison plot
     figs = plot_compare_evokeds(
         evokeds,
         picks=valid_channels,
@@ -197,20 +172,17 @@ def plot_erp_comparison(evokeds: Dict[str, mne.Evoked], subject: str) -> None:
         show=False
     )
     
-    # 4. Save the figure
+    # Save the figure
     out_dir = make_subject_figdir(subject)
     out = out_dir / f"sub-{subject}_SPN_comparison.png"
     
-    # Check if 'figs' is a list (standard behavior) or single figure
     if isinstance(figs, list):
         fig_to_save = figs[0]
     else:
         fig_to_save = figs
         
     fig_to_save.savefig(out, dpi=150)
-    
-    # We don't use plt.close() here because MNE manages these figures differently,
-    # but closing via matplotlib usually works if backend is agg.
+
     plt.close(fig_to_save)
     print(f"Saved SPN comparison figure to {out}")
 
@@ -219,9 +191,7 @@ def plot_butterfly(
     evokeds: Dict[str, mne.Evoked],
     subject: str,
 ) -> None:
-    """
-    Butterfly plot (all channels) for each condition.
-    """
+    
     for name, ev in evokeds.items():
         fig = ev.plot(
             spatial_colors=True,

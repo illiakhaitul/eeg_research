@@ -7,31 +7,17 @@ import config
 
 
 def get_ica_fname(subject: str) -> Path:
-    """
-    File path where ICA solution for a subject will be stored.
-    """
-    return config.DERIV_ROOT / f"sub-{subject}_ica.fif"
+    out_dir = config.get_subject_deriv_dir(subject)
+    return out_dir/ f"sub-{subject}_ica.fif"
 
 
 def fit_ica(raw: mne.io.BaseRaw, subject: str) -> mne.preprocessing.ICA:
-    """
-    Fit an ICA model on the preprocessed raw data.
-
-    Parameters
-    ----------
-    raw : Raw
-        Preprocessed raw data (preferably high-pass filtered).
-    subject : str
-        Subject ID (e.g. "001").
-
-    Returns
-    -------
-    ica : mne.preprocessing.ICA
-    """
+    
+    # Fit an ICA model on the preprocessed raw data
     ica = mne.preprocessing.ICA(
         n_components=config.ICA_N_COMPONENTS,
         method=config.ICA_METHOD,
-        random_state=97,
+        random_state=config.ICA_RANDOM_STATE,
         max_iter="auto",
     )
     ica.fit(raw)
@@ -44,33 +30,10 @@ def fit_ica(raw: mne.io.BaseRaw, subject: str) -> mne.preprocessing.ICA:
 
 
 def load_ica(subject: str) -> mne.preprocessing.ICA:
-    """
-    Load a previously saved ICA solution.
-    """
+    
+    # Load a previously saved ICA solution.
     ica_fname = get_ica_fname(subject)
     return mne.preprocessing.read_ica(ica_fname)
-
-
-# def apply_ica(
-#     raw: mne.io.BaseRaw,
-#     ica: mne.preprocessing.ICA,
-#     exclude: Optional[Iterable[int]] = None,
-# ) -> mne.io.BaseRaw:
-#     """
-#     Apply ICA to remove artefactual components.
-
-#     For Milestone 3 we use a manual list from config.ICA_EXCLUDE.
-#     Later you can replace this by automatic IC classification (ICLabel, etc.).
-#     """
-#     raw_clean = raw.copy()
-#     if exclude is None:
-#         exclude = config.ICA_EXCLUDE
-
-#     ica.exclude = list(exclude)
-#     print(f"Applying ICA, excluding components: {ica.exclude}")
-#     ica.apply(raw_clean)
-
-#     return raw_clean
 
 def apply_ica(raw, ica, subject):
     exclude = config.ICA_EXCLUDE_MAP.get(subject, [])
@@ -78,7 +41,6 @@ def apply_ica(raw, ica, subject):
     if not exclude:
         print(f"\n[!] WARNING: ICA_EXCLUDE_MAP for {subject} is EMPTY.")
         print(f"Inspect images in {config.FIG_ROOT} and update config.py.")
-        # We return the original raw; it's 'dirty', but the script won't crash
         return raw.copy() 
 
     ica.exclude = exclude

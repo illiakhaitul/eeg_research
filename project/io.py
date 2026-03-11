@@ -8,9 +8,8 @@ import config
 
 
 def make_bids_path(subject: str) -> BIDSPath:
-    """
-    Create a BIDSPath for a given subject (task 'jacobsen', eeg, bdf).
-    """
+    
+    # Create a BIDSPath
     return BIDSPath(
         subject=subject,
         task="jacobsen",
@@ -22,12 +21,8 @@ def make_bids_path(subject: str) -> BIDSPath:
 
 
 def load_raw(subject: str) -> mne.io.BaseRaw:
-    """
-    Load raw EEG data for one subject from the BIDS dataset.
 
-    Uses mne-bids to respect all metadata (channels.tsv, electrodes, coordsystem).
-    Returns a Raw object with preload=True.
-    """
+    # Load raw data
     bids_path = make_bids_path(subject)
 
     raw = read_raw_bids(bids_path)
@@ -43,9 +38,6 @@ def load_raw(subject: str) -> mne.io.BaseRaw:
 
 
 def get_events_tsv_path(subject: str) -> Path:
-    """
-    Return the path to sub-XXX_task-jacobsen_events.tsv.
-    """
     sub = f"sub-{subject}"
     eeg_dir = config.BIDS_ROOT / sub / "eeg"
     events_path = eeg_dir / f"{sub}_task-jacobsen_events.tsv"

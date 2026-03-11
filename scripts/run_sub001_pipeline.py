@@ -1,3 +1,5 @@
+# we can delete this file now since i have created other two files for better structure.
+
 from pathlib import Path
 import sys
 import mne
@@ -23,35 +25,30 @@ def run_for_subject(subject: str) -> None:
     print(f"Running pipeline for sub-{subject}")
     print("=" * 80)
 
-    # 1) Load raw BIDS data
+    # Load raw BIDS data
     raw = load_raw(subject)
     print(raw)
+    """ raw.plot(block=True) """
 
-    # 2) Preprocess: band-pass, notch, reref
+    # Preprocess: band-pass, notch, reref
     raw_filt = preprocess_raw(raw, subject=subject)
-
-    # 3) Fit ICA and inspect components
-    # raw_for_ica = raw_filt.copy().filter(l_freq=1.0, h_freq=40.0)
     
-    # 3) Fit ICA
-    # We use a 1Hz high-pass for ICA as it helps the algorithm find better components
-    raw_for_ica = raw_filt.copy().filter(l_freq=1.0, h_freq=None)
-    ica = fit_ica(raw_for_ica, subject)
+    # Fit ICA
+    ica = fit_ica(raw_filt, subject)
 
-    # --- SAVE VISUALS FOR MANUAL INSPECTION ---
-    # These functions save .png files to our figures folder
     viz.plot_ica_components(ica, subject)
     viz.plot_ica_sources(ica, raw_filt, subject)
 
-    # 4) Apply ICA using the Mapping in config.py
-    # This function will now check config.ICA_EXCLUDE_MAP for the subject ID
+    # Apply ICA using the Mapping in config.py
     raw_clean = apply_ica(raw_filt, ica, subject=subject)
 
-    # 5) Create epochs
+    # Create epochs
     epochs = make_epochs(raw_clean, subject)
+    
+    epochs.plot_drop_log()
 
-    # 6) Compute ERPs
-    evokeds = compute_evokeds(epochs,subject)
+    # Compute ERPs
+    evokeds, metrics = compute_evokeds(epochs,subject)
     save_evokeds(evokeds, subject)
     
     # stest.run_cluster_permutation_test(
@@ -64,12 +61,11 @@ def run_for_subject(subject: str) -> None:
     #     alpha=0.05,
     # )
 
-    # 7) Compute EMG Z-scores (Affective Analysis)
+    # Compute EMG Z-scores
     emg_df = emg.compute_emg_zscore(epochs)
     emg.save_emg_results(emg_df, subject)
     emg.compute_and_save_emg_summary(emg_df, subject)
 
-    # 8) Figures for Milestone 3
     viz.plot_psd_before_after(raw, raw_filt, subject)
     viz.plot_raw_vs_clean(raw, raw_clean, subject)
     viz.plot_ica_components(ica, subject)
