@@ -108,14 +108,6 @@ TMAX = 1
 # Classic baseline correction window
 BASELINE = (-0.2, 0.0)
 
-EMG_ZM_CH = "EXG5"  
-
-# Corrugator Supercilii (CS, Frowning) = EXG7 (Highest tonic activity)
-EMG_CS_CH = "EXG7" 
-
-# EMG High-pass filter frequency for isolating muscle spikes (typical > 20 Hz)
-EMG_HPF = 20.0
-
 # Event codes from sub-001_task-jacobsen_events.tsv
 EVENT_ID = {
     "random": 3,
