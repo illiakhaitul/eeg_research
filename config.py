@@ -1,5 +1,15 @@
 from pathlib import Path
 
+"""
+=============================================================================
+                                EEG Tigers
+=============================================================================
+Team Members & Subject Analyzed:
+- Aman Kumar   : Subjects 001 - 012
+- Illia Khaitul: Subjects 013 - 024
+=============================================================================
+"""
+
 # BIDS_ROOT = Path(r"E:\masters Stuttgart\Uni Work\sem 3\EEG\EEG_project\data\ds004347") 
 BIDS_ROOT = Path(r"E:\masters Stuttgart\Uni Work\sem 3\EEG\dataset\ds004347")
 
