@@ -13,7 +13,7 @@ from project.preprocessing import preprocess_raw
 from project.ica import fit_ica, apply_ica
 from project.epochs import make_epochs
 from project.erp import compute_evokeds, save_evokeds
-from project import viz, stest
+from project import viz, cluster_perm_test_subject
 import matplotlib.pyplot as plt
 
 

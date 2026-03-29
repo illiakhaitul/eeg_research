@@ -87,6 +87,6 @@ def save_evokeds(evokeds: Dict[str, mne.Evoked], subject: str) -> None:
     """
     out_dir = config.get_subject_deriv_dir(subject)
     for name, ev in evokeds.items():
-        ev_fname = out_dir / f"sub-{subject}_evoked-{name}.fif"        
+        ev_fname = out_dir / f"sub-{subject}_evoked-{name}-ave.fif"        
         ev.save(ev_fname, overwrite=True)
         print(f"Saved evoked '{name}' for sub-{subject} to {ev_fname}")

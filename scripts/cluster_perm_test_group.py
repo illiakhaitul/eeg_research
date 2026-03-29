@@ -33,8 +33,8 @@ def run_group_cluster_test(alpha=config.CLUSTER_ALPHA, n_permutations=config.CLU
     # 2. Loops through all subjects and extract the difference wave
     for subject in config.SUBJECTS:
         out_dir = config.get_subject_deriv_dir(subject)
-        ev_sym_file = out_dir / f"sub-{subject}_evoked-symmetry.fif"
-        ev_ran_file = out_dir / f"sub-{subject}_evoked-random.fif"
+        ev_sym_file = out_dir / f"sub-{subject}_evoked-symmetry-ave.fif"
+        ev_ran_file = out_dir / f"sub-{subject}_evoked-random-ave.fif"
         
         # Ensures files exist
         if not ev_sym_file.exists() or not ev_ran_file.exists():
@@ -78,7 +78,8 @@ def run_group_cluster_test(alpha=config.CLUSTER_ALPHA, n_permutations=config.CLU
         n_permutations=n_permutations,
         tail=0, # Two-sided test
         n_jobs=-1,
-        out_type="mask"
+        out_type="mask",
+        seed=97,
     )
 
     # 6. Identify significant clusters
