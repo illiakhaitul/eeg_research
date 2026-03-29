@@ -1,3 +1,12 @@
+"""
+Main pipeline execution script for individual subjects.
+To run for a specific subject, use the command line:
+python run_subject.py --subject 0XX 
+where 0XX is the subject ID, e.g. "001", "005", etc.
+Therefore example command looks like: python run_subject.py --subject 005
+This script will execute the entire preprocessing and analysis pipeline for the specified subject.
+"""
+
 from pathlib import Path
 import sys
 import argparse
@@ -6,18 +15,16 @@ import mne
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(ROOT))
 
-import config
+# Refer step 7: This import is necessary to access ERP_CHANNELS in step 7 if uncommented to analyze cluster permutation test per subject which we did for reference for some individual subjects.
+import config 
 from project.io import load_raw
 from project.preprocessing import preprocess_raw
 from project.ica import fit_ica, apply_ica
 from project.epochs import make_epochs
 from project.erp import compute_evokeds, save_evokeds
 from project.summary import save_subject_summary
-from project import viz, cluster_perm_test_subject
+from project import viz, cluster_perm_test_subject # Refer step 7: We import this module to run the cluster permutation test at the individual subject level, which is a more exploratory analysis to identify potential SPN effects in each subject before we do the rigorous group-level test in cluster_perm_test_group.py.
 
-
-""" ROOT = Path(__file__).resolve().parents[1]
-sys.path.append(str(ROOT)) """
 
 def run_for_subject(subject: str) -> None:
     print("=" * 80)
@@ -28,24 +35,17 @@ def run_for_subject(subject: str) -> None:
     raw = load_raw(subject)
     print(raw)
 
-    # 2) Preprocess: band-pass, resample, reref
+    # 2) Preprocess: channel rejection, band-pass, resample, rereference
     raw_filt = preprocess_raw(raw, subject=subject)
 
     # 3) Fit ICA and inspect components
-    # raw_for_ica = raw_filt.copy().filter(l_freq=1.0, h_freq=40.0)
-    
-    # 3) Fit ICA
-    # We use a 1Hz high-pass for ICA as it helps the algorithm find better components
-    # raw_for_ica = raw_filt.copy().filter(l_freq=1.0, h_freq=None)
     ica = fit_ica(raw_filt, subject)
 
-    # --- SAVE VISUALS FOR MANUAL INSPECTION ---
-    # These functions save .png files to our figures folder
-    # viz.plot_ica_components(ica, subject)
-    # viz.plot_ica_sources(ica, raw_filt, subject)
-
     # 4) Apply ICA using the Mapping in config.py
-    # This function will now check config.ICA_EXCLUDE_MAP for the subject ID
+    # This function checks config.ICA_EXCLUDE_MAP for the subject ID.
+    # We implemented manual, targeted exclusion of specific IC components 
+    # (via our config map) to ensure we precisely removed biological artifacts 
+    # (blinks, cardiac) while strictly preserving the true cortical SPN generators.
     raw_clean = apply_ica(raw_filt, ica, subject=subject)
 
     # 5) Create epochs

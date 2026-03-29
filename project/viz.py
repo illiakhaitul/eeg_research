@@ -1,18 +1,14 @@
-from typing import Dict
+"""
+Visualization module.
+Handles automated plotting for QC and final report figures.
+"""
 
+from typing import Dict
 import matplotlib.pyplot as plt
-import mne, os
+import mne
 from mne.viz import plot_compare_evokeds
 
 import config
-
-# def make_subject_figdir(subject: str):
-#     out_dir = os.path.join(
-#         "D:/VUZ/uni/code_rest/EEG_Lecture/ds004347/derivatives/eegtigers/figures",
-#         f"sub-{subject}"
-#     )
-#     os.makedirs(out_dir, exist_ok=True)
-#     return out_dir
 
 def make_subject_figdir(subject: str):
     return config.get_subject_fig_dir(subject)
@@ -23,7 +19,7 @@ def plot_psd_before_after(
     subject: str,
 ) -> None:
     """
-    Compare the power spectral density (PSD) before and after preprocessing.
+    Compare the power spectral density (PSD) before and after filtering.
     """
     fig, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True)
     raw_before.plot_psd(ax=axes[0], show=False)
@@ -50,7 +46,6 @@ def plot_raw_vs_clean(
     """
     Plot a short segment of raw vs ICA-cleaned data for visual comparison.
     """
-    
     my_scalings = dict(eeg=50e-6) 
     
     fig = raw_before.plot(
@@ -81,40 +76,18 @@ def plot_raw_vs_clean(
 
     print(f"Saved raw vs clean segment plots to {out} and {out2}")
 
-
 def plot_ica_components(ica, subject: str):
-    """
-    Plot ICA components, excluding EXG channels entirely to avoid overlapping
-    montage positions. This solves the BioSemi EXG visualization bug.
-    """
-
-    # 1) Create a copy of ICA.info (so Raw info remains unchanged)
-    info = ica.info.copy()
-
-    # 2) Identify EXG channels
-    exg_channels = [ch for ch in info['ch_names'] if ch.startswith("EXG")]
-
-    # 3) Drop EXG channels from info before plotting ICA topographies
-    if len(exg_channels) > 0:
-        info = mne.pick_info(info, sel=[i for i, ch in enumerate(info['ch_names']) if ch not in exg_channels])
-
+    """Plot spatial topographies for all ICA components."""
+    # Because our preprocessing pipeline successfully drops the flawed 
+    # EXG channels entirely, we can safely plot the ICA components directly.
     try:
-        # Force ICA to use modified info (only EEG channels)
-        ica.info = info
-
-        # We plot all ICA components
         picks = range(ica.n_components_)
-
         fig = ica.plot_components(picks=picks, show=False)
+        out_dir = make_subject_figdir(subject)
+        fig_path = out_dir / f"sub-{subject}_ica_components.png"
+        fig.savefig(fig_path, dpi=150)
     except Exception as e:
         print("WARNING: Could not plot ICA components:", e)
-        return
-
-    # Save figure
-    out_dir = make_subject_figdir(subject)
-    fig_path = out_dir / f"sub-{subject}_ica_components.png"
-    fig.savefig(fig_path, dpi=150)
-    print(f"Saved ICA components figure to {fig_path}")
 
 def plot_ica_sources(ica, raw, subject: str):
     """
@@ -186,7 +159,6 @@ def plot_erp_comparison(evokeds: Dict[str, mne.Evoked], subject: str) -> None:
     colors = {'random': 'red', 'symmetry': 'blue'}
     
     # 3. Create the comparison plot
-    # Changed 'upper_right' to 'upper right' (removed underscore)
     figs = plot_compare_evokeds(
         evokeds,
         picks=valid_channels,
@@ -201,16 +173,13 @@ def plot_erp_comparison(evokeds: Dict[str, mne.Evoked], subject: str) -> None:
     out_dir = make_subject_figdir(subject)
     out = out_dir / f"sub-{subject}_SPN_comparison.png"
     
-    # Check if 'figs' is a list (standard behavior) or single figure
+    # Check if 'figs' is a list or single figure
     if isinstance(figs, list):
         fig_to_save = figs[0]
     else:
         fig_to_save = figs
         
     fig_to_save.savefig(out, dpi=150)
-    
-    # We don't use plt.close() here because MNE manages these figures differently,
-    # but closing via matplotlib usually works if backend is agg.
     plt.close(fig_to_save)
     print(f"Saved SPN comparison figure to {out}")
 

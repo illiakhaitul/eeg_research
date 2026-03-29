@@ -1,5 +1,9 @@
-from typing import Tuple
+"""
+Epoching module.
+Handles BIDS event extraction, alignment, and MNE Epoch creation.
+"""
 
+from typing import Tuple
 import numpy as np
 import pandas as pd
 import mne
@@ -18,7 +22,7 @@ def load_events(subject: str) -> np.ndarray:
     events_path = get_events_tsv_path(subject)
     df = pd.read_csv(events_path, sep="\t")
 
-    # Drop ignored event codes (e.g. 255 = sync trigger)
+    # Drop ignored event codes
     if "value" not in df.columns:
         raise ValueError(f"'value' column not found in {events_path}")
     df = df[~df["value"].isin(config.IGNORE_EVENT_VALUES)]
@@ -26,7 +30,6 @@ def load_events(subject: str) -> np.ndarray:
     samples = df["sample"].astype(int).to_numpy()
     event_codes = df["value"].astype(int).to_numpy()
 
-    # MNE events: n_events x 3 -> [sample, 0, event_id]
     events = np.column_stack([samples, np.zeros_like(samples), event_codes])
     return events
 
@@ -37,17 +40,6 @@ def make_epochs(
 ) -> mne.Epochs:
     """
     Create MNE Epochs for one subject.
-
-    Parameters
-    ----------
-    raw : Raw
-        Preprocessed & ICA-cleaned raw data.
-    subject : str
-        Subject ID, e.g. "001".
-
-    Returns
-    -------
-    epochs : mne.Epochs
     """
     events = load_events(subject)
     
@@ -72,11 +64,6 @@ def make_epochs(
         preload=True,
         reject=reject,
     )
-
-    # epochs.plot_drop_log()
-    # print("=" * 80)
-    # print(f"drop logs for sub-{epochs.drop_log}")
-    # print("=" * 80)
 
     # Save epochs to derivatives
     out_dir = config.get_subject_deriv_dir(subject)

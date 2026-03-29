@@ -1,3 +1,7 @@
+"""
+Summary logging module.
+Handles exporting subject-level metrics to JSON for aggregate analysis.
+"""
 import json
 from pathlib import Path
 import config
@@ -9,6 +13,9 @@ def save_subject_summary(
     random_mean: float,
     spn_mean: float,
 ):
+    """
+    Save key SPN metrics and preprocessing metadata to a structured JSON file.
+    """
     out_dir = config.get_subject_deriv_dir(subject)
     summary_path = out_dir / f"sub-{subject}_summary.json"
 

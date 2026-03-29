@@ -1,3 +1,8 @@
+"""
+Data input/output module.
+Handles BIDS-compliant loading of raw EEG data.
+"""
+
 from pathlib import Path
 from typing import Dict
 
@@ -9,14 +14,14 @@ import config
 
 def make_bids_path(subject: str) -> BIDSPath:
     """
-    Create a BIDSPath for a given subject (task 'jacobsen', eeg, bdf).
+    Create a BIDSPath for a given subject.
     """
     return BIDSPath(
         subject=subject,
-        task="jacobsen",
-        datatype="eeg",
-        suffix="eeg",
-        extension=".bdf",
+        task=config.BIDS_TASK,
+        datatype=config.BIDS_DATATYPE,
+        suffix=config.BIDS_SUFFIX,
+        extension=config.BIDS_EXTENSION,
         root=config.BIDS_ROOT,
     )
 
@@ -44,7 +49,7 @@ def load_raw(subject: str) -> mne.io.BaseRaw:
 
 def get_events_tsv_path(subject: str) -> Path:
     """
-    Return the path to sub-XXX_task-jacobsen_events.tsv.
+    Return the path to sub-0XX_task-jacobsen_events.tsv.
     """
     sub = f"sub-{subject}"
     eeg_dir = config.BIDS_ROOT / sub / "eeg"

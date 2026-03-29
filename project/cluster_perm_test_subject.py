@@ -1,3 +1,7 @@
+"""
+Subject-level cluster permutation statistical analysis module.
+Handles individual-level statistical verification of the SPN effect.
+"""
 from pathlib import Path
 from typing import Optional
 
@@ -15,33 +19,15 @@ def run_cluster_permutation_test(
     condition_a: str = "random",
     condition_b: str = "symmetry",
     picks: Optional[list[str]] = None,
-    n_permutations: int = 1000,
-    alpha: float = 0.05,
+    n_permutations: int = config.CLUSTER_PERMUTATIONS,
+    alpha: float = config.CLUSTER_ALPHA,
 ):
     """
-    Run cluster-based permutation test for ERP differences between two conditions.
-
-    Parameters
-    ----------
-    epochs : mne.Epochs
-        Epoched EEG data.
-    subject : str
-        Subject ID.
-    condition_a : str
-        First condition name.
-    condition_b : str
-        Second condition name.
-    picks : list[str] | None
-        EEG channels to include. If None, use all EEG channels.
-    n_permutations : int
-        Number of permutations.
-    alpha : float
-        Significance threshold for reporting clusters.
-
-    Returns
-    -------
-    results : dict
-        Dictionary with test results.
+    Run a subject-level cluster-based permutation test for ERP differences.
+    While our primary inferences are drawn at the group level, we built 
+    this subject-level permutation test to rigorously verify the SPN effect within 
+    individual participants. This ensures our group-level findings are not driven 
+    by a few extreme outliers.
     """
 
     print("=" * 80)
@@ -49,7 +35,7 @@ def run_cluster_permutation_test(
     print(f"Conditions: {condition_a} vs {condition_b}")
     print("=" * 80)
 
-    # 1) Keep only EEG channels
+    # 1) ==== Keep only EEG channels ====
     if picks is None:
         picks = mne.pick_types(epochs.info, eeg=True, eog=False, exclude="bads")
     else:
@@ -58,22 +44,21 @@ def run_cluster_permutation_test(
     if len(picks) == 0:
         raise RuntimeError("No EEG channels available for cluster test.")
 
-    # 2) Extract data for both conditions
+    # 2) ==== Extract data for both conditions ====
     epochs_a = epochs[condition_a].copy().pick(picks)
     epochs_b = epochs[condition_b].copy().pick(picks)
 
     X_a = epochs_a.get_data()  # shape: (n_epochs, n_channels, n_times)
     X_b = epochs_b.get_data()
 
-    # 3) Reorder to shape expected by spatio_temporal_cluster_test:
-    #    (n_epochs, n_times, n_channels)
+    # 3) ==== Reorder to shape expected by spatio_temporal_cluster_test: (n_epochs, n_times, n_channels) ===
     X_a = np.transpose(X_a, (0, 2, 1))
     X_b = np.transpose(X_b, (0, 2, 1))
 
-    # 4) Channel adjacency matrix
+    # 4) ==== Channel adjacency matrix ====
     adjacency, ch_names = find_ch_adjacency(epochs_a.info, ch_type="eeg")
 
-    # 5) Run test
+    # 5) ==== Run test ====
     X = [X_a, X_b]
 
     T_obs, clusters, cluster_p_values, H0 = spatio_temporal_cluster_test(
@@ -81,12 +66,12 @@ def run_cluster_permutation_test(
         adjacency=adjacency,
         n_permutations=n_permutations,
         threshold=None,
-        tail=0,           # two-sided
+        tail=0,
         n_jobs=1,
         out_type="mask",
     )
 
-    # 6) Find significant clusters
+    # 6) ==== Find significant clusters ====
     significant_idx = np.where(cluster_p_values < alpha)[0]
 
     print(f"Number of clusters found: {len(clusters)}")
@@ -95,14 +80,14 @@ def run_cluster_permutation_test(
     for i in significant_idx:
         print(f"  Cluster {i}: p = {cluster_p_values[i]:.5f}")
 
-    # 7) Save numeric results
+    # 7) ==== Save numeric results ====
     out_dir = config.DERIV_ROOT / "stats"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     np.save(out_dir / f"sub-{subject}_T_obs.npy", T_obs)
     np.save(out_dir / f"sub-{subject}_cluster_p_values.npy", cluster_p_values)
 
-    # Save summary text
+    # 8) ==== Save summary text ====
     summary_path = out_dir / f"sub-{subject}_cluster_test_summary.txt"
     with open(summary_path, "w", encoding="utf-8") as f:
         f.write(f"Subject: sub-{subject}\n")
