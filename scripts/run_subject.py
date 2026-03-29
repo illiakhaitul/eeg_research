@@ -6,7 +6,6 @@ import mne
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(ROOT))
 
-import config
 from project.io import load_raw
 from project.preprocessing import preprocess_raw
 from project.ica import fit_ica, apply_ica

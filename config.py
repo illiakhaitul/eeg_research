@@ -1,4 +1,3 @@
-
 from pathlib import Path
 
 # BIDS_ROOT = Path(r"E:\masters Stuttgart\Uni Work\sem 3\EEG\EEG_project\data\ds004347") 
@@ -12,8 +11,7 @@ DERIV_ROOT.mkdir(parents=True, exist_ok=True)
 FIG_ROOT = DERIV_ROOT / "figures"
 FIG_ROOT.mkdir(parents=True, exist_ok=True)
 
-# We'll start with a single subject for Milestone 3
-SUBJECTS = ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011"]
+SUBJECTS = ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "012"]
 # SUBJECTS = [f"{i:03d}" for i in range(1, 25)]
 
 # ==== FILTERING / PREPROCESSING ===========================================
