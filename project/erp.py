@@ -1,21 +1,11 @@
+"""
+Event-Related Potential (ERP) computation module.
+Handles evoked averaging and explicit extraction of SPN metrics.
+"""
+
 from typing import Dict
-
 import mne
-
 import config
-
-
-# def compute_evokeds(epochs: mne.Epochs) -> Dict[str, mne.Evoked]:
-#     """
-#     Compute averaged ERP (Evoked) for each condition defined in config.EVENT_ID.
-#     """
-#     evokeds = {}
-#     for cond_name in config.EVENT_ID.keys():
-#         if cond_name not in epochs.event_id:
-#             print(f"Warning: condition '{cond_name}' not found in epochs.")
-#             continue
-#         evokeds[cond_name] = epochs[cond_name].average()
-#     return evokeds
 
 def compute_spn_metrics(evokeds: Dict[str, mne.Evoked], roi_channels):
     """
@@ -30,12 +20,21 @@ def compute_spn_metrics(evokeds: Dict[str, mne.Evoked], roi_channels):
     random_mean_uv = evoked_ran.copy().pick(roi_channels).data.mean() * 1e6
 
     # SPN difference in the main time window
+    # We explicitly calculate the SPN difference wave by subtracting 
+    # the random condition from the symmetry condition. This mirrors the logic of 
+    # author but leverages modern MNE 'combine_evoked' methods to 
+    # mathematically isolate the symmetry-specific neural response.
     spn_diff = mne.combine_evoked([evoked_sym, evoked_ran], weights=[1, -1])
+
+    # We crop to the specific SPN time window (300ms to 1000ms)
     spn_mean_uv = spn_diff.copy().pick(roi_channels).crop(0.3, 1.0).data.mean() * 1e6
 
     return symmetry_mean_uv, random_mean_uv, spn_mean_uv
 
 def compute_evokeds(epochs: mne.Epochs, subject: str):
+    """
+    Compute averaged ERP (Evoked) for each condition and extract SPN metrics.
+    """
     evokeds = {}
 
     for cond_name in config.EVENT_ID.keys():
@@ -45,7 +44,7 @@ def compute_evokeds(epochs: mne.Epochs, subject: str):
         evokeds[cond_name] = epochs[cond_name].average()
 
     metrics = None
-    # --- Compute SPN ---
+    # === Compute SPN ===
     if "symmetry" in evokeds and "random" in evokeds:
         symmetry_mean_uv, random_mean_uv, spn_mean_uv = compute_spn_metrics(
             evokeds,
@@ -63,7 +62,7 @@ def compute_evokeds(epochs: mne.Epochs, subject: str):
             "spn_mean_uv": spn_mean_uv,
         }
 
-        # --- Difference wave plot for SPN verification ---
+        # === Difference wave plot for SPN verification ===
         diff = mne.combine_evoked(
             [evokeds["symmetry"], evokeds["random"]],
             weights=[1, -1]

@@ -1,15 +1,14 @@
+"""
+Independent Component Analysis (ICA) module.
+Handles fitting and application of ICA for artifact rejection.
+"""
 from pathlib import Path
-from typing import Iterable, Optional
-
 import mne
-
 import config
 
 
 def get_ica_fname(subject: str) -> Path:
-    """
-    File path where ICA solution for a subject will be stored.
-    """
+    # File path where ICA solution for a subject will be stored.
     out_dir = config.get_subject_deriv_dir(subject)
     return out_dir/ f"sub-{subject}_ica.fif"
 
@@ -18,16 +17,10 @@ def fit_ica(raw: mne.io.BaseRaw, subject: str) -> mne.preprocessing.ICA:
     """
     Fit an ICA model on the preprocessed raw data.
 
-    Parameters
-    ----------
-    raw : Raw
-        Preprocessed raw data (preferably high-pass filtered).
-    subject : str
-        Subject ID (e.g. "001").
-
-    Returns
-    -------
-    ica : mne.preprocessing.ICA
+    We chose FastICA with 30 components because it provides an 
+    optimal balance. It is computationally efficient while providing enough 
+    dimensions to cleanly separate ocular and cardiac artifacts from the 
+    underlying neural signal in our 64-channel array.
     """
     ica = mne.preprocessing.ICA(
         n_components=config.ICA_N_COMPONENTS,
@@ -45,35 +38,12 @@ def fit_ica(raw: mne.io.BaseRaw, subject: str) -> mne.preprocessing.ICA:
 
 
 def load_ica(subject: str) -> mne.preprocessing.ICA:
-    """
-    Load a previously saved ICA solution.
-    """
+    # Load a previously saved ICA solution.
     ica_fname = get_ica_fname(subject)
     return mne.preprocessing.read_ica(ica_fname)
 
-
-# def apply_ica(
-#     raw: mne.io.BaseRaw,
-#     ica: mne.preprocessing.ICA,
-#     exclude: Optional[Iterable[int]] = None,
-# ) -> mne.io.BaseRaw:
-#     """
-#     Apply ICA to remove artefactual components.
-
-#     For Milestone 3 we use a manual list from config.ICA_EXCLUDE.
-#     Later you can replace this by automatic IC classification (ICLabel, etc.).
-#     """
-#     raw_clean = raw.copy()
-#     if exclude is None:
-#         exclude = config.ICA_EXCLUDE
-
-#     ica.exclude = list(exclude)
-#     print(f"Applying ICA, excluding components: {ica.exclude}")
-#     ica.apply(raw_clean)
-
-#     return raw_clean
-
 def apply_ica(raw, ica, subject):
+    # Apply targeted ICA exclusion based on our configuration map.
     exclude = config.ICA_EXCLUDE_MAP.get(subject, [])
     
     if not exclude:

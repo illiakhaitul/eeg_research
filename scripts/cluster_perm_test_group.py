@@ -1,8 +1,11 @@
+"""
+Group-level cluster permutation statistical analysis module.
+"""
+
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import sys
 from pathlib import Path
 import numpy as np
 import mne
@@ -13,24 +16,25 @@ import config
 
 def run_group_cluster_test(alpha=config.CLUSTER_ALPHA, n_permutations=config.CLUSTER_PERMUTATIONS):
     """
-    Runs a group-level spatio-temporal cluster permutation test.
-    This tests the null hypothesis that the Symmetry - Random difference wave
-    is zero across the entire population of 24 subjects.
+    We upgraded the original authors' methodology from standard ANOVAs 
+    in pre-selected time windows to a rigorous Spatio-Temporal Cluster 
+    Permutation Test. We chose this approach because it elegantly controls for the 
+    multiple comparisons problem across both space (channels) and time (ms), giving 
+    us highly robust group-level inferences without overly conservative penalties.
     """
     print("=" * 80)
     print(f"Running GROUP-LEVEL cluster permutation test across {len(config.SUBJECTS)} subjects")
     print("=" * 80)
 
-    # 1. Initialize list to store the difference arrays
+    # ==== 1. Initialize list to store the difference arrays ====
     diff_data = []
     
     # We use the ROI(Region of Interest) defined in config to make the test statistically powerful
     picks_roi = config.ERP_CHANNELS 
-    
     times = None
     info = None
 
-    # 2. Loops through all subjects and extract the difference wave
+    # ==== 2. Loops through all subjects and extract the difference wave ====
     for subject in config.SUBJECTS:
         out_dir = config.get_subject_deriv_dir(subject)
         ev_sym_file = out_dir / f"sub-{subject}_evoked-symmetry-ave.fif"
@@ -67,35 +71,37 @@ def run_group_cluster_test(alpha=config.CLUSTER_ALPHA, n_permutations=config.CLU
         data_t = np.transpose(data)
         diff_data.append(data_t)
 
-    # 3. Convert list to 3D numpy array: (n_subjects, n_times, n_channels)
+    # ==== 3. Convert list to 3D numpy array: (n_subjects, n_times, n_channels) ====
     if not diff_data:
         raise RuntimeError("No subjects had valid evoked files/channels for group test.")
     X = np.array(diff_data)
     print(f"Data array shape for stats: {X.shape} (Subjects, Times, Channels)")
 
-    # 4. Generate the spatial adjacency matrix for our specific ROI
+    # ==== 4. Generate the spatial adjacency matrix for our specific ROI ====
     adjacency, ch_names = find_ch_adjacency(info, ch_type="eeg")
 
-    # 5. Run the 1-sample cluster permutation test
+    # ==== 5. Run the 1-sample cluster permutation test ====
+    # We explicitly locked the random seed here to guarantee that our 
+    # permutations and statistical p-values are reproducible.
     print("Computing clusters...")
     T_obs, clusters, cluster_p_values, H0 = spatio_temporal_cluster_1samp_test(
         X,
         adjacency=adjacency,
         n_permutations=n_permutations,
-        tail=0, # Two-sided test
+        tail=0,
         n_jobs=-1,
         out_type="mask",
         seed=97,
     )
 
-    # 6. Identify significant clusters
+    # ==== 6. Identify significant clusters ====
     significant_idx = np.where(cluster_p_values < alpha)[0]
     
     print("\n--- STATISTICAL RESULTS ---")
     print(f"Total clusters found: {len(clusters)}")
     print(f"Significant clusters (p < {alpha}): {len(significant_idx)}")
 
-    # 7. Save results for the final report
+    # ==== 7. Save results for the final report ====
     out_dir = config.DERIV_ROOT / "stats"
     out_dir.mkdir(parents=True, exist_ok=True)
     summary_path = out_dir / "group_level_cluster_test_summary.txt"

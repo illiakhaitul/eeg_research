@@ -1,5 +1,3 @@
-from pathlib import Path
-
 """
 =============================================================================
                                 EEG Tigers
@@ -10,12 +8,26 @@ Team Members & Subject Analyzed:
 =============================================================================
 """
 
-# BIDS_ROOT = Path(r"E:\masters Stuttgart\Uni Work\sem 3\EEG\EEG_project\data\ds004347") 
-BIDS_ROOT = Path(r"E:\masters Stuttgart\Uni Work\sem 3\EEG\dataset\ds004347")
+"""
+This config.py file serves as the central hub for all parameters, settings, and utility functions 
+used across our EEG data processing pipeline. By consolidating these configurations in one place, 
+we ensure that our codebase remains modular, maintainable, and easily adaptable for future projects or different datasets.  
+Update path specifically "BIDS_ROOT" variable to point to dataset and study-specific settings here before running.
+Results can be found in the "derivatives/eegtigers" folder, organized by subject. Figures will be saved in "derivatives/eegtigers/figures".
+"""
 
-# Where to store our derivatives (preprocessed data, figures, etc.)
+from pathlib import Path
+
+# ==== DIRECTORIES ====
+BIDS_ROOT = Path(r"E:\masters Stuttgart\Uni Work\sem 3\EEG\dataset\ds004347")
 DERIV_ROOT = BIDS_ROOT / "derivatives" / "eegtigers"
 DERIV_ROOT.mkdir(parents=True, exist_ok=True)
+
+# ==== BIDS FILE METADATA ====
+BIDS_TASK = "jacobsen"
+BIDS_DATATYPE = "eeg"
+BIDS_SUFFIX = "eeg"
+BIDS_EXTENSION = ".bdf"
 
 # General figure output folder
 FIG_ROOT = DERIV_ROOT / "figures"
@@ -23,9 +35,8 @@ FIG_ROOT.mkdir(parents=True, exist_ok=True)
 
 SUBJECTS = ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "012",
             "013", "014", "015", "016", "017", "018", "019", "020", "021", "022", "023", "024"]
-# SUBJECTS = [f"{i:03d}" for i in range(1, 25)]
 
-# ==== FILTERING / PREPROCESSING ===========================================
+# ==== PREPROCESSING PARAMETERS ===========================================
 
 #Identify bad channels manually
 BAD_CHANNELS_MAP = {
@@ -45,8 +56,8 @@ BAD_CHANNELS_MAP = {
     "014": ["AF7", "Fp1", "Fp2", "AF8", "TP8", "Fpz", "AF3"],
     "015": ["Fp1", "AF7", "Fpz", "Fp2", "AF8"],
     "016": ["F2", "Fp1", "Fpz"],
-    "017": ["Fp1", "Fp2", "Fpz", "AF7", "AF8", "AF3", "AF4", "AFz", "Iz"], # better with reject = dict(eeg=150e-6)
-    "018": ["C4", "CP4", "CP2", "FCz", "Cz", "Fp1", "Fp2", "AF8"],  # better with reject = dict(eeg=150e-6)
+    "017": ["Fp1", "Fp2", "Fpz", "AF7", "AF8", "AF3", "AF4", "AFz", "Iz"],
+    "018": ["C4", "CP4", "CP2", "FCz", "Cz", "Fp1", "Fp2", "AF8"], 
     "019": [],
     "020": ["P9", "O1", "TP7", "Fp1", "P10"],
     "021": ["PO4", "AF8", "FT7", "Fp2", "Fp1", "AF4", "Oz", "F4"],
@@ -55,12 +66,12 @@ BAD_CHANNELS_MAP = {
     "024": ["P10", "P9", "Fp2", "Fpz", "AF3"]
 }
 
-# Our change vs authors: Band-pass instead of simple low-pass at 30 Hz
-L_FREQ = 0.5   # high-pass
-H_FREQ = 30.0  # low-pass
-
-# Powerline noise
-# NOTCH_FREQS = (50.0,)  # Hz
+# This seems correct, because while originally author used 
+# a simple 25 Hz low-pass filter, upgrading to a strict 0.5 - 30.0 Hz band-pass 
+# removes slow-wave drifts and sweat artifacts while preserving the core frequencies 
+# required to accurately measure the Sustained Posterior Negativity (SPN) effect.
+L_FREQ = 0.5
+H_FREQ = 30.0
 
 # Resampling rate (Hz)
 RESAMPLE_FREQ = 256
@@ -68,12 +79,20 @@ RESAMPLE_FREQ = 256
 # Original sampling rate for ds004347 Experiment 1 BioSemi data
 ORIG_SFREQ = 512
 
-# ICA parameters
+# ==== ICA PARAMETERS ====
+"""
+We chose FastICA with 30 components because it provides an 
+optimal balance. It is computationally efficient while providing enough 
+dimensions to cleanly separate ocular and cardiac artifacts from the 
+underlying neural signal in our 64-channel array.
+"""
 ICA_METHOD = "fastica" 
 ICA_N_COMPONENTS = 30
+# This seems correct, because locking the random state ensures strict 
+# reproducibility of the ICA component decomposition across different pipeline runs.
 ICA_RANDOM_STATE = 97
 
-# List of ICA components to remove (will be updated after visual inspection)
+# List of ICA components to remove (updated after visual inspection)
 ICA_EXCLUDE_MAP = {
     "001": [0, 3, 4, 5, 6],
     "002": [1, 5, 6, 10, 21],
@@ -91,7 +110,7 @@ ICA_EXCLUDE_MAP = {
     "014": [0, 1, 2, 4, 6],
     "015": [0,1,2],
     "016": [3, 4, 6],
-    "017": [1, 4, 9, 13], # better with reject = dict(eeg=150e-6)
+    "017": [1, 4, 9, 13],
     "018": [],
     "019": [],
     "020": [3, 9],
@@ -101,34 +120,44 @@ ICA_EXCLUDE_MAP = {
     "024": [0, 2, 3, 5, 9, 10]
 }
 
-# Time window around each stimulus (in seconds)
+# ==== EPOCHING PARAMETERS ====
+# ==== Time window around each stimulus (in seconds) ====
 TMIN = -1
 TMAX = 1
 
-# Classic baseline correction window
+# This seems correct, because author used a -200 to +50 ms 
+# baseline. By modernizing to a strict -200 to 0 ms pre-stimulus baseline, we prevent 
+# any post-stimulus visual evoked potentials (VEPs) from bleeding into and artificially 
+# skewing the baseline correction phase.
 BASELINE = (-0.2, 0.0)
 
-# Event codes from sub-001_task-jacobsen_events.tsv
+# ==== Event codes from sub-0XX_task-jacobsen_events.tsv and sub-0XX_task-jacobsen_events.json file ====
 EVENT_ID = {
     "random": 3,
     "symmetry": 1,
 }
 
+# ==== Ignore start/sync markers ====
+IGNORE_EVENT_VALUES = [255] 
+
 # ==== STATISTICAL PARAMETERS ====
+# We choose 1000 permutations, because it provides a stable, 
+# robust approximation of the null distribution for the spatio-temporal cluster test.
 CLUSTER_ALPHA = 0.05
 CLUSTER_PERMUTATIONS = 1000
 
-IGNORE_EVENT_VALUES = [255]  # start/sync trigger
 
-# Channels of interest for ERP plot (occipital / parietal)
+# These channels align with the primary SPN regions of interest(ROI)
+# (Lateral Occipital / Parietal) identified in the original paper and are commonly used in EEG research to capture visual processing effects.
 ERP_CHANNELS = ["PO7", "PO8", "Oz", "O1", "O2", "POz"]
 
-# Main ROI for final reported SPN (matches paper)
+# Main ROI for final reported SPN
 SPN_ROI_MAIN = ["PO7", "PO8"]
 
-# Broader posterior ROI for QC / supportive checks
-SPN_ROI_QC = ["PO7", "PO8", "Oz", "O1", "O2", "POz"]
 
+# ==== UTILITY FUNCTIONS ====
+# update directory paths once defined above with variable name "BIDS_ROOT", then we use these helpers everywhere
+# to keep the code modular and avoid hard-coded paths.
 def get_subject_deriv_dir(subject: str) -> Path:
     out = DERIV_ROOT / f"sub-{subject}"
     out.mkdir(parents=True, exist_ok=True)
