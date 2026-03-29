@@ -13,7 +13,7 @@ from project.ica import fit_ica, apply_ica
 from project.epochs import make_epochs
 from project.erp import compute_evokeds, save_evokeds
 from project.summary import save_subject_summary
-from project import viz, stest
+from project import viz, cluster_perm_test_subject
 
 
 """ ROOT = Path(__file__).resolve().parents[1]
@@ -64,17 +64,17 @@ def run_for_subject(subject: str) -> None:
         )
     
     # 7) Cluster permutation test for SPN (symmetry vs random)
-    stest.run_cluster_permutation_test(
-        epochs,
-        subject,
-        condition_a="random",
-        condition_b="symmetry",
-        picks=config.ERP_CHANNELS,   # or None for all EEG channels
-        n_permutations=1000,
-        alpha=0.05,
-    )
+    # cluster_perm_test_subject.run_cluster_permutation_test(
+    #     epochs,
+    #     subject,
+    #     condition_a="random",
+    #     condition_b="symmetry",
+    #     picks=config.ERP_CHANNELS,
+    #     n_permutations=1000,
+    #     alpha=0.05,
+    # )
 
-    # 7) EMG analysis disabled for now
+    # 8) EMG analysis disabled for now
     # emg_df = emg.compute_emg_zscore(epochs)
     # emg.save_emg_results(emg_df, subject)
     # emg.compute_and_save_emg_summary(emg_df, subject)
