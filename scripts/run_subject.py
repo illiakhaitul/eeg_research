@@ -74,12 +74,7 @@ def run_for_subject(subject: str) -> None:
     #     alpha=0.05,
     # )
 
-    # 8) EMG analysis disabled for now
-    # emg_df = emg.compute_emg_zscore(epochs)
-    # emg.save_emg_results(emg_df, subject)
-    # emg.compute_and_save_emg_summary(emg_df, subject)
-
-    # 8) Figures for Milestone 3
+    # 8) Figures for analysis
     viz.plot_psd_before_after(raw, raw_filt, subject)
     viz.plot_raw_vs_clean(raw, raw_clean, subject)
     viz.plot_ica_components(ica, subject)
