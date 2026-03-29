@@ -1,1 +1,1 @@
-__all__ = ["io", "preprocessing", "ica", "epochs", "erp", "viz", "emg", "stest"]
+__all__ = ["io", "preprocessing", "ica", "epochs", "erp", "viz", "stest"]
