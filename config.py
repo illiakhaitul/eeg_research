@@ -11,7 +11,7 @@ DERIV_ROOT.mkdir(parents=True, exist_ok=True)
 FIG_ROOT = DERIV_ROOT / "figures"
 FIG_ROOT.mkdir(parents=True, exist_ok=True)
 
-SUBJECTS = ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "012"]
+SUBJECTS = ["013", "014", "015", "016", "017", "018", "019", "020", "021", "022", "023", "024"]
 # SUBJECTS = [f"{i:03d}" for i in range(1, 25)]
 
 # ==== FILTERING / PREPROCESSING ===========================================
@@ -30,9 +30,21 @@ BAD_CHANNELS_MAP = {
     "010": [],
     "011": [],
     "012": [],
+	"013": ["POz", "PO8", "AF8", "CP4", "Iz", "Fp1"],
+    "014": ["AF7", "Fp1", "Fp2", "AF8", "TP8", "Fpz", "AF3"],
+    "015": ["Fp1", "AF7", "Fpz", "Fp2", "AF8"],
+    "016": ["F2", "Fp1", "Fpz"],
+    "017": ["Fp1", "Fp2", "Fpz", "AF7", "AF8", "AF3", "AF4", "AFz", "Iz"], # better with reject = dict(eeg=150e-6)
+    "018": ["C4", "CP4", "CP2", "FCz", "Cz", "Fp1", "Fp2", "AF8"],  # better with reject = dict(eeg=150e-6)
+    "019": [],
+    "020": ["P9", "O1", "TP7", "Fp1", "P10"],
+    "021": ["PO4", "AF8", "FT7", "Fp2", "Fp1", "AF4", "Oz", "F4"],
+    "022": ["P10"],
+    "023": ["P9", "F5", "Fp1"],
+    "024": ["P10", "P9", "Fp2", "Fpz", "AF3"]
 }
 
-# Your change vs authors: Band-pass instead of simple low-pass at 30 Hz
+# Our change vs authors: Band-pass instead of simple low-pass at 30 Hz
 L_FREQ = 0.5   # high-pass
 H_FREQ = 30.0  # low-pass
 
@@ -46,12 +58,11 @@ RESAMPLE_FREQ = 256
 ORIG_SFREQ = 512
 
 # ICA parameters
-ICA_METHOD = "fastica" # may change this to a better one
-ICA_N_COMPONENTS = 30  # can be None (all) or number < n_channels
+ICA_METHOD = "fastica" 
+ICA_N_COMPONENTS = 30
 ICA_RANDOM_STATE = 97
 
 # List of ICA components to remove (will be updated after visual inspection)
-# ICA_EXCLUDE = [0,1,3]
 ICA_EXCLUDE_MAP = {
     "001": [0, 3, 4, 5, 6],
     "002": [1, 5, 6, 10, 21],
@@ -65,6 +76,18 @@ ICA_EXCLUDE_MAP = {
     "010": [0],
     "011": [0, 1],
     "012": [0,1],
+	"013": [1,2,3],
+    "014": [0, 1, 2, 4, 6],
+    "015": [0,1,2],
+    "016": [3, 4, 6],
+    "017": [1, 4, 9, 13], # better with reject = dict(eeg=150e-6)
+    "018": [],
+    "019": [],
+    "020": [3, 9],
+    "021": [2, 4, 9, 24, 26], 
+    "022": [0, 1, 2, 3, 26, 29],
+    "023": [0, 1, 3, 8, 13, 26, 29],
+    "024": [0, 2, 3, 5, 9, 10]
 }
 
 # Time window around each stimulus (in seconds)
