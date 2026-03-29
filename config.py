@@ -11,7 +11,8 @@ DERIV_ROOT.mkdir(parents=True, exist_ok=True)
 FIG_ROOT = DERIV_ROOT / "figures"
 FIG_ROOT.mkdir(parents=True, exist_ok=True)
 
-SUBJECTS = ["013", "014", "015", "016", "017", "018", "019", "020", "021", "022", "023", "024"]
+SUBJECTS = ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "012",
+            "013", "014", "015", "016", "017", "018", "019", "020", "021", "022", "023", "024"]
 # SUBJECTS = [f"{i:03d}" for i in range(1, 25)]
 
 # ==== FILTERING / PREPROCESSING ===========================================
@@ -110,6 +111,10 @@ EVENT_ID = {
     "random": 3,
     "symmetry": 1,
 }
+
+# ==== STATISTICAL PARAMETERS ====
+CLUSTER_ALPHA = 0.05
+CLUSTER_PERMUTATIONS = 1000
 
 IGNORE_EVENT_VALUES = [255]  # start/sync trigger
 

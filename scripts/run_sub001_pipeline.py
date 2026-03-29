@@ -13,7 +13,7 @@ from project.preprocessing import preprocess_raw
 from project.ica import fit_ica, apply_ica
 from project.epochs import make_epochs
 from project.erp import compute_evokeds, save_evokeds
-from project import viz, emg, stest
+from project import viz, stest
 import matplotlib.pyplot as plt
 
 
@@ -66,10 +66,10 @@ def run_for_subject(subject: str) -> None:
     #     alpha=0.05,
     # )
 
-    # 7) Compute EMG Z-scores (Affective Analysis)
-    emg_df = emg.compute_emg_zscore(epochs)
-    emg.save_emg_results(emg_df, subject)
-    emg.compute_and_save_emg_summary(emg_df, subject)
+    # 7) EMG analysis disabled for now
+    # emg_df = emg.compute_emg_zscore(epochs)
+    # emg.save_emg_results(emg_df, subject)
+    # emg.compute_and_save_emg_summary(emg_df, subject)
 
     # 8) Figures for Milestone 3
     viz.plot_psd_before_after(raw, raw_filt, subject)
