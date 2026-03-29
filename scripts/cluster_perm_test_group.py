@@ -24,7 +24,7 @@ def run_group_cluster_test(alpha=config.CLUSTER_ALPHA, n_permutations=config.CLU
     # 1. Initialize list to store the difference arrays
     diff_data = []
     
-    # We use the ROI defined in config to make the test statistically powerful
+    # We use the ROI(Region of Interest) defined in config to make the test statistically powerful
     picks_roi = config.ERP_CHANNELS 
     
     times = None
@@ -49,7 +49,11 @@ def run_group_cluster_test(alpha=config.CLUSTER_ALPHA, n_permutations=config.CLU
         diff = mne.combine_evoked([ev_sym, ev_ran], weights=[1, -1])
         
         # Keep only the channels in our ROI
-        diff.pick(picks_roi)
+        picks_available = [ch for ch in picks_roi if ch in diff.ch_names]
+        if not picks_available:
+            print(f"Warning: No ROI channels found for sub-{subject}. Skipping.")
+            continue
+        diff.pick(picks_available)
         
         # Save times and info from the first subject to use later
         if times is None:
@@ -64,6 +68,8 @@ def run_group_cluster_test(alpha=config.CLUSTER_ALPHA, n_permutations=config.CLU
         diff_data.append(data_t)
 
     # 3. Convert list to 3D numpy array: (n_subjects, n_times, n_channels)
+    if not diff_data:
+        raise RuntimeError("No subjects had valid evoked files/channels for group test.")
     X = np.array(diff_data)
     print(f"Data array shape for stats: {X.shape} (Subjects, Times, Channels)")
 
