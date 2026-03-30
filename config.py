@@ -137,6 +137,14 @@ EVENT_ID = {
     "symmetry": 1,
 }
 
+# ==== VISUALIZATION CONFIGURATION ====
+# We defined a central color scheme to ensure all individual and 
+# group-level plots are visually consistent and publication-ready.
+CONDITION_COLORS = {
+    "symmetry": "blue",
+    "random": "red"
+}
+
 # ==== Ignore start/sync markers ====
 IGNORE_EVENT_VALUES = [255] 
 
@@ -165,5 +173,15 @@ def get_subject_deriv_dir(subject: str) -> Path:
 
 def get_subject_fig_dir(subject: str) -> Path:
     out = FIG_ROOT / f"sub-{subject}"
+    out.mkdir(parents=True, exist_ok=True)
+    return out
+
+
+def get_group_fig_dir() -> Path:
+    """
+    We created a dedicated directory for group-level visualizations 
+    to clearly separate our Grand Average plots from individual subject QC figures.
+    """
+    out = FIG_ROOT / "group"
     out.mkdir(parents=True, exist_ok=True)
     return out
