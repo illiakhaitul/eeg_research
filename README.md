@@ -41,6 +41,14 @@ To process all 24 subjects, extract the SPN metrics, and generate quality contro
 #(make sure you are in scripts folder or provide path to this file while running this command)
 python run_all_subjects.py
 
+This command automates:
+
+  Preprocessing: Filtering (0.5-30Hz), ICA artifact rejection, and bad channel interpolation.
+
+  Metric Extraction: Saving individual quantitative summaries for all subjects.
+
+  Group Visuals: Generating Grand Average line plots, Topographic maps, and Alpha-Band ERD.
+
 If you wish to test the pipeline on a single subject (eg. sub 005), you can run:
 python run_subject.py --subject 005
 
