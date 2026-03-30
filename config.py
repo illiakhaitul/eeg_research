@@ -145,6 +145,15 @@ CONDITION_COLORS = {
     "random": "red"
 }
 
+# ==== TOPOGRAPHIC MAP PARAMETERS ====
+# We chose these time windows to capture the early (300-600ms) 
+# and late (600-1000ms) phases of the Sustained Posterior Negativity, 
+# strictly replicating the temporal analysis reported original paper.
+TOPO_TIME_WINDOWS = [
+    (0.3, 0.6), 
+    (0.6, 1.0)
+]
+
 # ==== Ignore start/sync markers ====
 IGNORE_EVENT_VALUES = [255] 
 
