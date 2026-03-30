@@ -154,6 +154,13 @@ TOPO_TIME_WINDOWS = [
     (0.6, 1.0)
 ]
 
+# ==== TIME-FREQUENCY (ERD) PARAMETERS ====
+# We chose the 10-14 Hz range to capture the 'Upper Alpha' band 
+# as specifically defined by Makin et al. (2012) for their ERD analysis.
+ERD_FREQ_RANGE = (10, 14)
+ERD_TMIN = -0.5  # Baseline window for ERD
+ERD_TMAX = 1.0
+
 # ==== Ignore start/sync markers ====
 IGNORE_EVENT_VALUES = [255] 
 
