@@ -154,22 +154,19 @@ def plot_erp_comparison(evokeds: Dict[str, mne.Evoked], subject: str) -> None:
     if not valid_channels:
         print(f"SPN channels {roi_channels} not found. Skipping comparison plot.")
         return
-
-    # 2. Define colors for the conditions
-    colors = {'random': 'red', 'symmetry': 'blue'}
     
-    # 3. Create the comparison plot
+    # 2. Create the comparison plot
     figs = plot_compare_evokeds(
         evokeds,
         picks=valid_channels,
         combine='mean',          
-        colors=colors,
+        colors=config.CONDITION_COLORS,
         title=f"sub-{subject}: SPN Effect (Mean of {', '.join(valid_channels)})",
         show_sensors='upper right',
         show=False
     )
     
-    # 4. Save the figure
+    # 3. Save the figure
     out_dir = make_subject_figdir(subject)
     out = out_dir / f"sub-{subject}_SPN_comparison.png"
     
