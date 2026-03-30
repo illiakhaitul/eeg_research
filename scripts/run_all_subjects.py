@@ -13,6 +13,7 @@ import config
 from scripts.run_subject import run_for_subject
 from project.plot_grand_average import plot_group_spn
 from project.plot_group_topomaps import plot_group_topo
+from project.plot_group_erd import plot_group_alpha_erd
 
 def main():
     mne.set_log_level("INFO")
@@ -48,6 +49,15 @@ def main():
         plot_group_topo()
     except Exception as e:
         print(f"Error generating Topographic Maps: {e}")
+
+    # --- PHASE 4: TIME-FREQUENCY ANALYSIS (ERD) ---
+    # We included Alpha-Band ERD analysis to provide a multi-dimensional 
+    # view of the symmetry response, effectively replicating the oscillatory 
+    # findings reported in the original Experiment 1.
+    try:
+        plot_group_alpha_erd()
+    except Exception as e:
+        print(f"Error generating Alpha ERD: {e}")
 
     print("\n" + "=" * 80)
     print("PIPELINE EXECUTION FINISHED SUCCESSFULLY.")
