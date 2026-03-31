@@ -91,7 +91,7 @@ def run_group_cluster_test(alpha=config.CLUSTER_ALPHA, n_permutations=config.CLU
         tail=0,
         n_jobs=-1,
         out_type="mask",
-        seed=87,
+        seed=42,
     )
 
     # ==== 6. Identify significant clusters ====
