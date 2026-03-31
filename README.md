@@ -36,6 +36,11 @@ Change the path to match the directory where the ds004347 dataset is stored on y
 # Example:
 BIDS_ROOT = Path("/path/to/your/local/dataset/ds004347")
 
+step 1.1: Run Automated Sanity Checks
+Verify the mathematical logic of the SPN extraction and the integrity of the preprocessing parameters:
+```bash
+python test_pipeline.py
+
 Step 2: Run the Main Preprocessing & ERP Pipeline
 To process all 24 subjects, extract the SPN metrics, and generate quality control figures, run the master script from the root of the project directory:
 #(make sure you are in scripts folder or provide path to this file while running this command)
